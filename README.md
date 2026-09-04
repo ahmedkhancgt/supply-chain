@@ -36,6 +36,10 @@ Written to `output/` (not committed to git):
   colored by service level.
 - `product_mix_distribution.png` — count of SKUs per ABC class.
 
+For a full explanation of every derived column and the formulas behind
+them (with worked examples), see
+[`docs/COLUMN_DEFINITIONS.md`](docs/COLUMN_DEFINITIONS.md).
+
 ### What the pipeline does
 
 1. Loads transactions and removes duplicates, cancelled orders (invoices
