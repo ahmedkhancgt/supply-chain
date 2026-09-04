@@ -32,7 +32,8 @@ decisions.
 
 ### Output
 
-Written to `output/` (not committed to git):
+Written to `output/` (tracked in git so the latest run's results are
+browsable in the repo):
 
 - `reorder_recommendations.csv` / `inventory_report.xlsx` — per-product
   reorder point and safety stock under a fixed lead time and under an
@@ -74,3 +75,38 @@ behind them (with worked examples), see
 standalone helper (not run automatically) for comparing total cost at EOQ
 vs. at a supplier's discounted order quantity for one product — call it
 manually when you have a real discount offer.
+
+## Policy backtest (top-N SKUs)
+
+`src/policy_simulation.py` runs the main pipeline, takes the top `TOP_N`
+SKUs by `safety_stock_investment`, and replays each one's real daily
+demand history through 5 inventory review policies (`inventorize`'s
+`sim_min_Q_normal`, `sim_base_normal`, `sim_min_max_normal`,
+`Periodic_review_normal`, `Hibrid_normal`) using the reorder point and EOQ
+already computed for that SKU as the policy parameters. Unlike the static
+formulas, this measures what would have *actually* happened (fill rate,
+lost sales, average inventory carried) day by day.
+
+```bash
+python3 src/policy_simulation.py
+```
+
+Writes `policy_simulation_top5.csv`, `policy_simulation_fill_rate.png`,
+and `policy_simulation_inventory_level.png` to `output/`.
+
+These functions are flagged deprecated by `inventorize` in favour of newer
+names (`sim_Q_max`, `sim_base_stock_policy`, `sim_min_max`,
+`periodic_policy`) — kept as-is here since they're correct for this
+purpose, just superseded. They also share a minor bug: `Item_fill_rate`'s
+denominator drops the last simulated period's demand, slightly inflating
+the reported fill rate — not significant enough to justify reimplementing
+the simulation loop for a 5-SKU backtest, but worth knowing if you lean on
+that number.
+
+**A note on what "daily demand" means here**: the main pipeline's
+`average` column is the mean demand on days a product *actually sold* —
+correct for its formulas, but not the same thing as a true daily average.
+Several of the top SKUs by safety-stock investment turned out to have sold
+on only 1-2 days across the whole analysis window, so `daily_series()` in
+this script computes its own zero-filled calendar-day mean/sd for the
+simulation rather than reusing the pipeline's `average`/`sd`.

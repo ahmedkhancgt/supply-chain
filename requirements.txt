@@ -5,3 +5,4 @@ seaborn>=0.12
 matplotlib>=3.7
 openpyxl>=3.1
 inventorize3>=0.0.1
+inventorize>=1.2.6
