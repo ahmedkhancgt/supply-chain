@@ -110,3 +110,76 @@ Several of the top SKUs by safety-stock investment turned out to have sold
 on only 1-2 days across the whole analysis window, so `daily_series()` in
 this script computes its own zero-filled calendar-day mean/sd for the
 simulation rather than reusing the pipeline's `average`/`sd`.
+
+## Advanced analytics: demand pattern, pricing, single-period ordering
+
+`src/advanced_analytics.py` combines three more techniques into one
+pipeline, reusing `inventory_planning.py`'s cleaning and ABC classification
+rather than duplicating it. Unlike the other two scripts, it uses the
+**full** cleaned transaction history (not the 4-month window) since these
+techniques benefit from more history, not a recent snapshot.
+
+```bash
+python3 src/advanced_analytics.py
+```
+
+1. **Demand-pattern classification** (`demand_pattern_classification.csv`/`.png`)
+   — the standard ADI/CV² method (Syntetos-Boylan-Croston): buckets every
+   product into smooth, intermittent, erratic, or lumpy demand.
+2. **Price elasticity** (`price_elasticity.csv`) — `inventorize.linear_elasticity`
+   per SKU, for SKUs with at least `MIN_WEEKS_FOR_ELASTICITY` weeks of
+   price variation (most don't — see below).
+3. **Price optimization** (`price_optimization_top5.csv`,
+   `price_optimization_example.png`) — `inventorize.single_product_optimization`
+   (fits linear/logit/poly demand curves) for the top 5 eligible SKUs by
+   volume, comparing revenue-maximizing vs. profit-maximizing price.
+4. **Single-period ("newsvendor") ordering** (`single_period_ordering.csv`)
+   — `inventorize.MPN_singleperiod` per SKU, using yearly demand totals.
+
+This was adapted from four uploaded scripts (`product_segmentation.py`,
+`Behaviour_Pricing.py`, `Seasonal_Inventory.py`, and a small notebook),
+fixing several bugs found by actually running them rather than carrying
+them over:
+
+- **`.dt.week`** (`Behaviour_Pricing.py`) was removed in pandas ≥2.0 and
+  crashes immediately — replaced with an ISO week key via
+  `.dt.strftime('%G-W%V')`.
+- **ADI's day-gap calculation** (`product_segmentation.py`) converted a
+  `Timedelta` to a day count by string-replacing
+  `"days 00:00:00.000000000"` out of its text representation — this no
+  longer matches pandas' current `Timedelta` formatting and silently
+  produced all-`NaN` results. Replaced with `.dt.days`.
+- **`single_product_optimization`'s `cost` parameter** (`Behaviour_Pricing.py`)
+  was passed positionally, where it actually landed in the `degree`
+  parameter instead (`cost` is the function's 6th argument). Verified this
+  crashes for a float cost and silently zeroes out cost for an int one.
+  Always called here with `cost=` as an explicit keyword.
+- **A non-converging fit, not a clean error**: one candidate SKU had an
+  almost perfectly constant price (`1.6499999999999997`–`1.65`, floating-point
+  noise only) — fitting a logit curve to it sent `scipy`'s optimizer into a
+  multi-minute non-converging loop instead of failing fast. Candidates are
+  now pre-filtered by `MIN_RELATIVE_PRICE_SPREAD`, with a
+  `PER_SKU_OPTIMIZATION_TIMEOUT_S` timeout as a second line of defense.
+- **`MPN_singleperiod` returns `NaN`** for a SKU with exactly zero demand
+  variance (both years sold identically) the same way it does for missing
+  variance — this produced 113 all-`NaN` output rows before being folded
+  into the same 10%-of-demand placeholder already used for the
+  one-year-of-history case.
+- `single_product_optimization`'s `current_price`/`optimum_linear`/`optimum_logit`
+  fields are pre-formatted sentences (e.g. `"optimum logit revenue price is
+  [18.19]for Mango"`), not plain numbers — parsed back out with a small
+  regex helper instead of writing the sentence into a CSV column.
+
+`COST_MARGIN`, `SALVAGE_RATE`, and `PENALTY_RATE` are placeholders in the
+same category as `inventory_planning.Config`'s `ordering_cost_per_order`/
+`holding_rate` — not in the transaction data, defaulted to match what the
+original scripts assumed (see the comments at the top of the file).
+
+**Why so few SKUs get a price elasticity or optimization result**: most
+Germany SKUs barely change price at all over the two-year history — of
+2,402 SKUs, only 50 had enough weeks of real price variation for
+`compute_price_elasticity`, and only 5 (the top sellers among those 50)
+get the full `single_product_optimization` treatment. This mirrors the
+demand-sparsity finding from the policy backtest above — the data
+supports fewer of these advanced techniques than the source scripts
+assumed.
