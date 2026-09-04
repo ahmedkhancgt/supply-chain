@@ -36,8 +36,9 @@ Written to `output/` (not committed to git):
   colored by service level.
 - `product_mix_distribution.png` — count of SKUs per ABC class.
 
-For a full explanation of every derived column and the formulas behind
-them (with worked examples), see
+For a quick-reference table of every output column, see
+[`docs/SKUs.md`](docs/SKUs.md). For the full explanation of the formulas
+behind them (with worked examples), see
 [`docs/COLUMN_DEFINITIONS.md`](docs/COLUMN_DEFINITIONS.md).
 
 ### What the pipeline does
