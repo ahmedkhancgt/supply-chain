@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Safety-stock and reorder-point planning pipeline.
+"""Safety-stock, reorder-point, and order-quantity planning pipeline.
 
 Loads cleaned order history for a country, classifies each product into a
-volume/revenue mix (ABC analysis), and computes reorder points and safety
-stock under two demand models: a fixed lead time, and a lead time that is
-itself uncertain. Results and summary charts are written to OUTPUT_DIR.
+volume/revenue mix (ABC analysis), computes reorder points and safety
+stock under two demand models (a fixed lead time, and a lead time that is
+itself uncertain), and computes each product's economic order quantity
+(EOQ) — how much to order each time, complementing the reorder point's
+answer of when to order. Results and summary charts are written to
+OUTPUT_DIR.
 """
 
 from __future__ import annotations
@@ -48,6 +51,11 @@ class Config:
     lead_time_sd_days: float = 2
     default_service_level: float = 0.75
     service_level_map: dict = field(default_factory=lambda: dict(DEFAULT_SERVICE_LEVEL_MAP))
+    # Not present in the transaction data (they're operating costs, not sales
+    # records) — these are placeholders. Replace with real figures before
+    # trusting eoq_units / annual_logistics_cost for purchasing decisions.
+    ordering_cost_per_order: float = 50.0
+    holding_rate: float = 0.20
 
 
 def load_transactions(path: Path, country: str | None = None) -> pd.DataFrame:
@@ -169,6 +177,70 @@ def compute_reorder_points(df: pd.DataFrame, lead_time_days: float, lead_time_sd
     return df
 
 
+def compute_eoq(df: pd.DataFrame, ordering_cost_per_order: float, holding_rate: float) -> pd.DataFrame:
+    df = df.copy()
+    df["annual_demand"] = df["average"] * 365
+
+    holding_cost_per_unit = holding_rate * df["avg_unit_price"]
+    order_cycle_years = np.sqrt(
+        2 * ordering_cost_per_order / (df["annual_demand"] * holding_cost_per_unit)
+    )
+    df["eoq_units"] = order_cycle_years * df["annual_demand"]
+    df["eoq_order_cycle_weeks"] = order_cycle_years * 52
+
+    # Round the order cycle to the nearest power-of-two weeks (1, 2, 4, 8, ...)
+    # -- a standard practical simplification: EOQ's cost curve is flat near its
+    # minimum, so rounding to an operationally convenient cycle costs little,
+    # per inventorize3.TQpractical (verified correct; unlike
+    # reorderpoint_leadtime_variability, no bug in this one).
+    practical_cycle_weeks = 2 ** np.round(np.log(df["eoq_order_cycle_weeks"] / np.sqrt(2)) / np.log(2))
+    df["eoq_practical_units"] = practical_cycle_weeks / 52 * df["annual_demand"]
+
+    df["annual_ordering_cost"] = (df["annual_demand"] / df["eoq_units"]) * ordering_cost_per_order
+    df["annual_holding_cost"] = (df["eoq_units"] / 2) * holding_cost_per_unit
+    df["annual_logistics_cost"] = (
+        df["annual_ordering_cost"] + df["annual_holding_cost"] + df["avg_unit_price"] * df["annual_demand"]
+    )
+    return df
+
+
+def evaluate_quantity_discount(
+    annual_demand: float,
+    unit_price: float,
+    ordering_cost_per_order: float,
+    holding_rate: float,
+    discount_quantity: float,
+    discount_pct: float,
+) -> dict:
+    """Compare total annual cost at EOQ vs. at a supplier's discounted order
+    quantity, for one product. Not run automatically over every SKU -- call
+    this manually when a real discount offer (quantity + %) comes in, since
+    that isn't something present in the transaction data.
+    """
+    holding_cost_per_unit = holding_rate * unit_price
+    eoq_units = np.sqrt(2 * annual_demand * ordering_cost_per_order / holding_cost_per_unit)
+    cost_at_eoq = (
+        (annual_demand / eoq_units) * ordering_cost_per_order
+        + (eoq_units / 2) * holding_cost_per_unit
+        + unit_price * annual_demand
+    )
+
+    discounted_price = unit_price * (1 - discount_pct)
+    cost_at_discount = (
+        (annual_demand / discount_quantity) * ordering_cost_per_order
+        + (discount_quantity / 2) * (holding_rate * discounted_price)
+        + discounted_price * annual_demand
+    )
+
+    return {
+        "eoq_units": eoq_units,
+        "cost_at_eoq": cost_at_eoq,
+        "cost_at_discount_quantity": cost_at_discount,
+        "accept_discount": cost_at_discount < cost_at_eoq,
+        "annual_savings": cost_at_eoq - cost_at_discount,
+    }
+
+
 def build_summary(df: pd.DataFrame) -> dict:
     return {
         "skus_analyzed": len(df),
@@ -179,6 +251,9 @@ def build_summary(df: pd.DataFrame) -> dict:
             df["safety_stock_uplift_pct"].replace([np.inf, -np.inf], np.nan).mean(), 1
         ),
         "safety_stock_investment_at_cost": round(df["safety_stock_investment"].sum(), 2),
+        "total_annual_ordering_and_holding_cost": round(
+            (df["annual_ordering_cost"] + df["annual_holding_cost"]).sum(), 2
+        ),
     }
 
 
@@ -237,6 +312,7 @@ def run(config: Config) -> pd.DataFrame:
     stats = product_stats(daily)
     classified = classify_products(stats, config.service_level_map, config.default_service_level)
     reorder = compute_reorder_points(classified, config.lead_time_days, config.lead_time_sd_days)
+    reorder = compute_eoq(reorder, config.ordering_cost_per_order, config.holding_rate)
 
     summary = build_summary(reorder)
     logger.info("Executive summary: %s", summary)

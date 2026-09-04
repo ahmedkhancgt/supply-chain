@@ -4,9 +4,10 @@ Supply Chain repository
 
 ## Inventory planning pipeline
 
-`src/inventory_planning.py` computes reorder points and safety stock for
-each product from order history, using an ABC (volume x revenue) product
-classification to set a service-level target per product.
+`src/inventory_planning.py` computes reorder points, safety stock, and
+economic order quantity (EOQ) for each product from order history, using
+an ABC (volume x revenue) product classification to set a service-level
+target per product.
 
 ### Setup
 
@@ -24,14 +25,19 @@ By default it reads `data/Germany.xlsx`. To point it at a different file or
 country, edit the `Config` defaults at the top of `src/inventory_planning.py`
 (`data_path`, `country`, `lead_time_days`, `lead_time_sd_days`, `analysis_window_months`).
 
+`ordering_cost_per_order` and `holding_rate` are **placeholder values**
+(not derivable from the transaction data) — replace them with your real
+operating costs before trusting the `eoq_*` columns for purchasing
+decisions.
+
 ### Output
 
 Written to `output/` (not committed to git):
 
 - `reorder_recommendations.csv` / `inventory_report.xlsx` — per-product
   reorder point and safety stock under a fixed lead time and under an
-  uncertain lead time, ranked by safety-stock investment (units x avg
-  selling price).
+  uncertain lead time, plus economic order quantity (EOQ), ranked by
+  safety-stock investment (units x avg selling price).
 - `safety_stock_vs_variability.png` — safety stock vs. demand variability,
   colored by service level.
 - `product_mix_distribution.png` — count of SKUs per ABC class.
@@ -58,4 +64,13 @@ behind them (with worked examples), see
    rather than calling `inventorize3.reorderpoint_leadtime_variability`,
    which has a bug (it XORs the lead-time standard deviation instead of
    squaring it, understating safety stock).
-6. Writes the ranked recommendations, an executive summary, and two charts.
+6. Computes each product's economic order quantity (EOQ) — how much to
+   order each time, complementing the reorder point's answer of when to
+   order — plus a practical order quantity rounded to a convenient order
+   cycle, and the resulting annual ordering/holding/logistics cost.
+7. Writes the ranked recommendations, an executive summary, and two charts.
+
+`evaluate_quantity_discount()` in `src/inventory_planning.py` is a
+standalone helper (not run automatically) for comparing total cost at EOQ
+vs. at a supplier's discounted order quantity for one product — call it
+manually when you have a real discount offer.

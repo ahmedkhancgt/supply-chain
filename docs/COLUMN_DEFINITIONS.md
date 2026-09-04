@@ -20,6 +20,7 @@ All examples below use one real row from a run against `data/Germany.xlsx`:
 6. [`safety_stock_uplift_pct`](#6-safety_stock_uplift_pct)
 7. [`safety_stock_investment`](#7-safety_stock_investment)
 8. [Known library bug this script works around](#8-known-library-bug-this-script-works-around)
+9. [Economic order quantity (EOQ)](#9-economic-order-quantity-eoq)
 
 ---
 
@@ -239,3 +240,116 @@ by roughly 30–40% depending on the inputs.
 directly (`sd_leadtime_days ** 2`, shown in Model B above) instead of
 calling that library function, so `safety_stock_variable_leadtime` and
 `reorder_point_variable_leadtime` in the output are correct.
+
+(The same bug also exists, byte-for-byte identical, in the original
+`inventorize` package — `inventorize3` copied it rather than introducing
+it. Confirmed by installing `inventorize` separately and reading its
+source for this function.)
+
+---
+
+## 9. Economic order quantity (EOQ)
+
+Reorder point answers *"when do I place an order?"*. EOQ answers a
+different question: *"how much should I order each time?"*. Calculated in
+`compute_eoq()`.
+
+**Important:** unlike every other column in this document, EOQ needs two
+inputs that don't exist anywhere in the transaction data —
+`ordering_cost_per_order` (what it costs to place one order) and
+`holding_rate` (annual cost of carrying one unit in stock, as a fraction
+of its price). `Config` ships these as **placeholders**
+(`ordering_cost_per_order=50.0`, `holding_rate=0.20`) — replace them with
+real figures before using `eoq_units` or `annual_logistics_cost` for
+actual purchasing decisions.
+
+### `annual_demand`
+
+```python
+annual_demand = average * 365
+```
+
+Annualizes the daily average demand computed in step 3.
+
+### `eoq_units`, `eoq_order_cycle_weeks`
+
+The classic EOQ formula balances two competing costs: ordering more often
+costs more in ordering fees, ordering less often costs more in holding
+cost (money tied up in stock sitting on a shelf). The quantity that
+minimizes their sum is:
+
+```python
+holding_cost_per_unit = holding_rate * avg_unit_price
+order_cycle_years = sqrt(2 * ordering_cost_per_order / (annual_demand * holding_cost_per_unit))
+eoq_units = order_cycle_years * annual_demand
+eoq_order_cycle_weeks = order_cycle_years * 52
+```
+
+**Example** (STOOL HOME SWEET HOME, `avg_unit_price ≈ 10.43`,
+`annual_demand ≈ 11,132.5`, placeholder `ordering_cost_per_order=50`,
+`holding_rate=0.20`):
+
+```
+holding_cost_per_unit = 0.20 * 10.43 ≈ 2.087
+order_cycle_years = sqrt(2 * 50 / (11,132.5 * 2.087)) ≈ 0.0656
+eoq_units = 0.0656 * 11,132.5 ≈ 730.4
+eoq_order_cycle_weeks = 0.0656 * 52 ≈ 3.41
+```
+
+So: order about 730 units roughly every 3.4 weeks.
+
+### `eoq_practical_units`
+
+EOQ's total-cost curve is flat near its minimum, so a real warehouse
+rounds the order cycle to an operationally convenient number of weeks
+rather than ordering on an odd 3.41-week cadence. The standard heuristic
+rounds to the nearest **power of two weeks** (1, 2, 4, 8, ...):
+
+```python
+practical_cycle_weeks = 2 ** round(log(eoq_order_cycle_weeks / sqrt(2)) / log(2))
+eoq_practical_units = practical_cycle_weeks / 52 * annual_demand
+```
+
+```
+practical_cycle_weeks = 2**round(log(3.41 / sqrt(2)) / log(2)) = 2**round(1.27) = 2**1 = 2
+eoq_practical_units = 2/52 * 11,132.5 ≈ 428.2
+```
+
+This mirrors `inventorize3.TQpractical()` — that function was checked for
+the same kind of bug as `reorderpoint_leadtime_variability()` and found to
+be correct, but it's reimplemented directly here for consistency with the
+rest of this pipeline (and to vectorize it across all SKUs at once instead
+of one row at a time).
+
+### `annual_ordering_cost`, `annual_holding_cost`, `annual_logistics_cost`
+
+```python
+annual_ordering_cost = (annual_demand / eoq_units) * ordering_cost_per_order
+annual_holding_cost = (eoq_units / 2) * holding_cost_per_unit
+annual_logistics_cost = annual_ordering_cost + annual_holding_cost + avg_unit_price * annual_demand
+```
+
+At the true EOQ, `annual_ordering_cost` and `annual_holding_cost` are
+always equal by construction — that's the point the formula solves for.
+For STOOL HOME SWEET HOME both come out to ≈ **762.1**.
+`annual_logistics_cost` adds the cost of the goods themselves
+(`avg_unit_price * annual_demand`), giving the full annual cost of
+carrying this product: 762.1 + 762.1 + (10.43 × 11,132.5) ≈ **117,685.5**.
+
+### What was deliberately left out
+
+Two things from the original EOQ scripts this was adapted from were
+**not** carried into the automatic per-SKU pipeline:
+
+- **A separate EOQ-based reorder point.** The classic EOQ reorder point
+  formula (`reorder_point = lead_time_demand`, no safety stock at all) is
+  a cruder model than what `compute_reorder_points()` already provides.
+  Adding it would just create a second, worse reorder-point column sitting
+  next to a better one.
+- **Quantity-discount evaluation.** Deciding whether to accept a
+  supplier's "10% off if you order 700" offer needs a specific offer
+  (a quantity and a discount %) that doesn't exist per SKU in the
+  transaction data, so it can't run automatically over 1,000+ products.
+  It's available as `evaluate_quantity_discount()` in
+  `src/inventory_planning.py` — call it manually with a real offer when
+  one comes in.
