@@ -183,3 +183,64 @@ get the full `single_product_optimization` treatment. This mirrors the
 demand-sparsity finding from the policy backtest above — the data
 supports fewer of these advanced techniques than the source scripts
 assumed.
+
+## Customer lifetime value segmentation
+
+`src/customer_ltv_segmentation.py` computes RFM (recency, frequency,
+monetary) scores per customer, clusters them into Low/Mid/High lifetime
+value segments, and trains a classifier to predict segment from RFM
+behavior. Adapted from `cltv.py`/`cltv_assignment.py` (uploaded
+separately) — two near-identical scripts that both assumed an
+already-computed RFM file this repo doesn't have, so `compute_rfm()`
+reconstructs it directly from the same cleaned transaction data
+`inventory_planning.py` already loads.
+
+```bash
+python3 src/customer_ltv_segmentation.py
+```
+
+Writes `customer_rfm_segments.csv`, `ltv_segment_confusion.csv`,
+`ltv_outlier_removal.png`, `ltv_segment_means.png`, and
+`ltv_feature_importance.png` to `output/`.
+
+Three real, verified bugs from the originals are fixed here rather than
+carried over:
+
+- **A guaranteed crash**: `len(ltv)-len(outliers_removed)` is called one
+  line *before* `outliers_removed` is defined — `NameError` on any
+  top-to-bottom run.
+- **An RFM scoring inversion applied to the wrong columns**: both
+  originals map `{'1':'3','3':'1','2':'2'}` onto recency, frequency,
+  *and* monetary alike. That flip only makes sense for recency (low
+  recency = best, so its raw tertile order needs reversing) — frequency
+  and monetary already increase with customer value, so applying the
+  same flip inverts a scale that didn't need it. Fixed by qcut-ing
+  recency with descending labels and frequency/monetary with ascending
+  labels directly, instead of qcut-then-flip.
+- **The consequential one — KMeans cluster IDs assumed sorted by value**:
+  nothing guarantees `KMeans(...).fit_predict()`'s cluster `0` has the
+  lowest mean LTV. Verified empirically (5 reseeds of a synthetic
+  3-cluster LTV distribution): the cluster-id-to-mean order came out
+  already sorted in only 1 of 5 runs. The originals' hardcoded
+  `{'0':'Low_ltv','1':'Mid_ltv','2':'High_ltv'}` would silently mislabel
+  customers — e.g. calling your highest-spending cluster "Low_ltv" — on
+  an unlucky seed, with nothing in the code to catch it. Fixed by ranking
+  clusters by their actual mean LTV before labeling.
+
+Also fixed: no `random_state` anywhere (`KMeans`, the CV splitters, the
+searches) — results didn't reproduce run to run; and the final
+`groupby(['Actual','Prediction'])['Actual','Prediction']` — tuple-style
+column selection on a `GroupBy`, which raises
+`ValueError: Cannot subset columns with a tuple with more than one
+element` on current pandas — fixed to list-style selection. A train/test
+split was also added before the final evaluation; the originals predicted
+on the same data they'd fit on, which overstates real accuracy.
+
+**A caveat worth knowing, not a bug**: `monetary` (an RFM feature the
+classifier trains on) is the same value as `ltv` (what `KMeans` actually
+clustered on) — confirmed in the Germany run, where the winning model's
+feature importance came out `monetary: 1.0`, everything else `0.0`. The
+classifier isn't learning a genuine behavioral pattern so much as
+recovering its own label through a renamed copy of it. Kept as-is to
+match the original scripts' feature set, but reported here rather than
+silently presenting the resulting ~100% accuracy as a clean result.
