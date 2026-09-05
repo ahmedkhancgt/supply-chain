@@ -96,6 +96,43 @@ def mine_association_rules(baskets_encoded: pd.DataFrame) -> pd.DataFrame:
     return rules.sort_values("confidence", ascending=False)
 
 
+def recommend_products(rules: pd.DataFrame, basket_items: set[str], top_n: int = 5) -> pd.DataFrame:
+    """Given the products already in a customer's basket, return other
+    products worth recommending -- every rule whose full antecedent set is
+    already covered by the basket "fires", contributing its consequent
+    items as recommendations. A 2-item-antecedent rule only fires once
+    both of its items are present, matching how the rule was actually
+    mined (not just "any overlap").
+
+    Not called automatically by run() -- this is meant to be imported and
+    called per-customer/per-cart at recommendation time, using whatever
+    rules table basket_association_rules.csv (or a fresh mine_association_
+    rules() call) most recently produced.
+    """
+    candidates = []
+    for _, rule in rules.iterrows():
+        antecedent_items = set(rule["antecedents"].split(" + "))
+        if not antecedent_items <= basket_items:
+            continue
+        for product in rule["consequents"].split(" + "):
+            if product not in basket_items:
+                candidates.append(
+                    {
+                        "recommended_product": product,
+                        "because_of": rule["antecedents"],
+                        "confidence": rule["confidence"],
+                        "lift": rule["lift"],
+                    }
+                )
+
+    columns = ["recommended_product", "because_of", "confidence", "lift"]
+    if not candidates:
+        return pd.DataFrame(columns=columns)
+
+    recommendations = pd.DataFrame(candidates).sort_values(["lift", "confidence"], ascending=False)
+    return recommendations.drop_duplicates(subset="recommended_product").head(top_n)[columns]
+
+
 def find_slow_movers(clean: pd.DataFrame) -> pd.Series:
     """Products in the lowest total-quantity-sold octile."""
     total_quantity = clean.groupby("Description")["Quantity"].sum()
