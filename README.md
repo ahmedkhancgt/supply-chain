@@ -111,61 +111,6 @@ on only 1-2 days across the whole analysis window, so `daily_series()` in
 this script computes its own zero-filled calendar-day mean/sd for the
 simulation rather than reusing the pipeline's `average`/`sd`.
 
-## Juice SKU policy backtest (multi-volume, Normal + Poisson)
-
-`src/juice_policy_simulation.py` runs the same 5-policy backtest as
-`policy_simulation.py`, but against `data/sku_distributions.csv` (apple,
-grape, and cantaloupe juice) instead of Germany transaction data. It's the
-same idea as `policy_simulation.py`, adapted from a different source
-script (`section16.py`, uploaded separately) that had two real bugs:
-
-```bash
-python3 src/juice_policy_simulation.py
-```
-
-- **Crash fix**: `skus[['apple_juice']]` (double brackets) selects a
-  DataFrame, not a Series, which `inventorize` can't handle
-  (`ValueError: setting an array element with a sequence`) — same issue
-  on `cantalop_juice`. Fixed to single-bracket Series selection.
-- **Fair-comparison fix**: the original's final comparison mixed
-  `leadtime=7` for one policy with `leadtime=2` for the other four in the
-  same table. Every policy here shares one lead time.
-- **Shared config, like `policy_simulation.py`**: lead time, target
-  service level, and ordering/holding cost all come from
-  `inventory_planning.Config` — the same shared business-assumption
-  placeholders used across every pipeline in this repo, instead of a
-  second hardcoded copy of the same numbers living in this file. Only
-  `Config.data_path` isn't reused (it points at `Germany.xlsx`, a
-  different dataset with a different schema). Since
-  `sku_distributions.csv` has no price column, `Config.holding_rate`
-  (a % of item value) is applied to a placeholder `ASSUMED_UNIT_PRICE`
-  instead of a real `avg_unit_price` — flagged in the code as an
-  additional placeholder specific to this script.
-- **Parameters are derived, not hand-picked**: the original hardcoded
-  `Quantity`/`Max`/`Min`/`Base` per call (e.g. `Max=400`), and two of
-  those five configurations turned out to silently miss their own stated
-  service-level target when actually run. Here, `compute_policy_parameters()`
-  derives the reorder point and order-up-to level from each SKU's own
-  demand statistics (the same formula each `inventorize` function falls
-  back to internally when `Min=False`), so every policy for a given SKU
-  starts from a consistent, checkable basis.
-- **Automatic demand-model choice**: the original picked a Normal model
-  for apple_juice (~101 units/day) and a Poisson model for
-  grape_juice/cantalop_juice (~2 and ~10 units/day — low, intermittent
-  counts, where Poisson is the more appropriate choice) — a good decision,
-  kept here but decided automatically per SKU via `POISSON_MEAN_THRESHOLD`
-  instead of picked by hand per column.
-
-Writes `juice_policy_simulation.csv`, `juice_policy_fill_rate.png`, and
-`juice_policy_inventory_level.png` to `output/`. Result: with derived
-parameters, all 5 policies clear their target service level for all 3
-SKUs (unlike the original's hand-picked values) — and `base_stock` is
-again the leanest on average inventory across all three, the same
-conclusion `policy_simulation.py` reached on the Germany data.
-
-`ORDERING_COST` and `INVENTORY_COST` are placeholders, same category as
-elsewhere in this repo — not present in `sku_distributions.csv`.
-
 ## Advanced analytics: demand pattern, pricing, single-period ordering
 
 `src/advanced_analytics.py` combines three more techniques into one
