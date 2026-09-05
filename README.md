@@ -2,6 +2,42 @@
 
 Supply Chain repository
 
+## Data source: `data/Data.xlsx`
+
+Every script in this repo reads from `Config.data_path`
+(`src/inventory_planning.py`), which points at `data/Data.xlsx` —
+140,000 transactions across 40 countries, replacing the original
+`data/Germany.xlsx` (which is still in the repo but no longer the
+default). `Config.country` still defaults to `"Germany"`, so the pipeline
+analyzes the same 2,867-row Germany slice as before by default; point
+`Config.country` at any of the other 39 countries in the file (or set it
+to `None` for the full unfiltered dataset) to analyze a different scope.
+
+Data.xlsx carries real per-transaction data for several assumptions that
+used to be flat placeholder constants: `lead_time_days`,
+`lead_time_sd_days`, `ordering_cost_per_order`, `holding_rate`, and `Cost`
+(a real per-unit cost, where before there was only a selling `Price`).
+`inventory_planning.extract_supply_parameters()` averages each of these
+per SKU and merges them into the reorder-point/EOQ pipeline;
+`advanced_analytics.resolve_unit_costs()` does the same for `Cost`. Each
+column falls back **independently** to its old placeholder (`Config`'s
+flat constant, or `COST_MARGIN * price`) when the loaded source doesn't
+have it — so the same code still works unmodified against the original
+Germany.xlsx, or any other source missing some (not necessarily all) of
+these columns. `SALVAGE_RATE` and `PENALTY_RATE` in
+`advanced_analytics.py` remain flat placeholders regardless — Data.xlsx
+has no equivalent columns for either.
+
+One `market_basket_analysis.py` constant needed re-tuning for the new
+data, not just a fallback: `MIN_SUPPORT` was sized for the original
+Germany.xlsx's ~700 invoices / 2,400 products and produced **zero**
+association rules against Data.xlsx's Germany slice (634 invoices spread
+across 1,250 products — a sparser catalog-to-basket ratio even at a
+similar invoice count) — checked directly (`0.02` → 0 rules, `0.006` → 8,
+`0.004` → 26) before landing on `0.006`. Re-check this constant if the
+data source changes again; it isn't derivable from anything else in the
+file the way the cost/lead-time columns are.
+
 ## Inventory planning pipeline
 
 `src/inventory_planning.py` computes reorder points, safety stock, and
@@ -21,14 +57,18 @@ pip install -r requirements.txt
 python3 src/inventory_planning.py
 ```
 
-By default it reads `data/Germany.xlsx`. To point it at a different file or
-country, edit the `Config` defaults at the top of `src/inventory_planning.py`
-(`data_path`, `country`, `lead_time_days`, `lead_time_sd_days`, `analysis_window_months`).
+By default it reads `data/Data.xlsx`, filtered to `country="Germany"` (see
+"Data source" above). To point it at a different file or country, edit the
+`Config` defaults at the top of `src/inventory_planning.py` (`data_path`,
+`country`, `analysis_window_months`).
 
-`ordering_cost_per_order` and `holding_rate` are **placeholder values**
-(not derivable from the transaction data) — replace them with your real
-operating costs before trusting the `eoq_*` columns for purchasing
-decisions.
+`lead_time_days`, `lead_time_sd_days`, `ordering_cost_per_order`, and
+`holding_rate` on `Config` are now **fallback values only** — real
+per-SKU data from the source file is used instead whenever it has the
+matching column (`extract_supply_parameters()`), which `Data.xlsx` does
+for all four. They still apply, one at a time, to any SKU/source missing
+its column — e.g. against the original `Germany.xlsx`, which has none of
+them, all four fall back exactly as before.
 
 ### Output
 
@@ -170,18 +210,21 @@ them over:
   [18.19]for Mango"`), not plain numbers — parsed back out with a small
   regex helper instead of writing the sentence into a CSV column.
 
-`COST_MARGIN`, `SALVAGE_RATE`, and `PENALTY_RATE` are placeholders in the
-same category as `inventory_planning.Config`'s `ordering_cost_per_order`/
-`holding_rate` — not in the transaction data, defaulted to match what the
-original scripts assumed (see the comments at the top of the file).
+Unit cost for all three techniques comes from `resolve_unit_costs()`: a
+real per-SKU `Cost` column when the source has one (`Data.xlsx` does), or
+`COST_MARGIN * price` otherwise (see "Data source" above). `SALVAGE_RATE`
+and `PENALTY_RATE` remain flat placeholders in the same category as
+`inventory_planning.Config`'s `ordering_cost_per_order`/`holding_rate` —
+not in the transaction data, defaulted to match what the original scripts
+assumed (see the comments at the top of the file).
 
 **Why so few SKUs get a price elasticity or optimization result**: most
-Germany SKUs barely change price at all over the two-year history — of
-2,402 SKUs, only 50 had enough weeks of real price variation for
-`compute_price_elasticity`, and only 5 (the top sellers among those 50)
-get the full `single_product_optimization` treatment. This mirrors the
-demand-sparsity finding from the policy backtest above — the data
-supports fewer of these advanced techniques than the source scripts
+Germany SKUs barely change price at all over the history — of 1,250 SKUs
+in Data.xlsx's Germany slice, only 6 had enough weeks of real price
+variation for `compute_price_elasticity`, and only 5 (the top sellers
+among those) get the full `single_product_optimization` treatment. This
+mirrors the demand-sparsity finding from the policy backtest above — the
+data supports fewer of these advanced techniques than the source scripts
 assumed.
 
 ## Customer lifetime value segmentation
@@ -274,31 +317,30 @@ Two real bugs from the notebook are fixed here rather than carried over:
   was actually targeting already-popular products. Fixed to bin `0`.
 - **Multi-item association rules were silently truncated to one item.**
   `rules["antecedents"].apply(lambda x: list(x)[0])` keeps only the first
-  element of what `mlxtend` returns as a set. Checked directly against
-  this data: 436 of 930 rules (47%) involve more than one item on at
-  least one side — nearly half the rule table would have shown only part
-  of the real rule (e.g. "buy A → buy C" when the actual rule was "buy A
-  and B → buy C"), with no visible sign anything was dropped. Fixed by
-  joining every item into one readable string instead of indexing into
-  the set.
+  element of what `mlxtend` returns as a set. This is a real correctness
+  bug regardless of dataset — on the original ~700-invoice Germany.xlsx
+  slice, 436 of 930 rules (47%) had more than one item on at least one
+  side, so the notebook's approach would have shown only part of the real
+  rule (e.g. "buy A → buy C" when the actual rule was "buy A and B → buy
+  C") with no visible sign anything was dropped. Fixed by joining every
+  item into one readable string instead of indexing into the set — see
+  "Data source" above for how `MIN_SUPPORT` (and so the resulting rule
+  count and multi-item share) varies by source file.
 
-Also: `MIN_SUPPORT` is sized to this repo's ~700-invoice Germany data.
-The notebook's original `min_support=0.009` was tuned for a
-~37,000-invoice dataset and produces 36,658 mostly-noise rules here (most
-from itemsets appearing in a single-digit number of invoices) — checked
-directly. `association_rules` was also called without `min_threshold`,
-silently taking `mlxtend`'s generic default (0.8) rather than the
-analytically meaningful cutoff for lift specifically (only lift `> 1.0`
-is a positive association) — made explicit here as `LIFT_MIN_THRESHOLD`.
+`association_rules` was also called without `min_threshold`, silently
+taking `mlxtend`'s generic default (0.8) rather than the analytically
+meaningful cutoff for lift specifically (only lift `> 1.0` is a positive
+association) — made explicit here as `LIFT_MIN_THRESHOLD`.
 
 **Real finding, not a bug**: at `MIN_SUPPORT`, zero rules involve a
-slow-moving product on either side, in this dataset. That's expected, not
-a mistake in the code — a product has to appear in a minimum share of
-invoices to be included in any rule at all, and by definition the
-slow-movers (bottom octile, 1–6 units sold total) are too rare to clear
-that bar. Finding real cross-sell pairings for them would need a support
-threshold scoped specifically to those products, not the same threshold
-used for the catalog-wide rule mining above — the two questions ("what do
-people buy together in general" vs. "what could I bundle with this
-specific slow-moving item") need different statistical treatment, which
-this script doesn't attempt.
+slow-moving product on either side, in this dataset (Data.xlsx's Germany
+slice: 283 slow movers, bottom octile, 1–6 units sold total, against 8
+rules total). That's expected, not a mistake in the code — a product has
+to appear in a minimum share of invoices to be included in any rule at
+all, and slow movers are by definition too rare to clear that bar.
+Finding real cross-sell pairings for them would need a support threshold
+scoped specifically to those products, not the same threshold used for
+the catalog-wide rule mining above — the two questions ("what do people
+buy together in general" vs. "what could I bundle with this specific
+slow-moving item") need different statistical treatment, which this
+script doesn't attempt.

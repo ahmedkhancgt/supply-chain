@@ -42,6 +42,7 @@ from inventory_planning import (
     compute_eoq,
     compute_reorder_points,
     daily_product_sales,
+    extract_supply_parameters,
     filter_recent_window,
     load_transactions,
     product_stats,
@@ -61,8 +62,13 @@ def build_ranked_skus(config: Config) -> pd.DataFrame:
     daily = daily_product_sales(windowed)
     stats = product_stats(daily)
     classified = classify_products(stats, config.service_level_map, config.default_service_level)
-    reorder = compute_reorder_points(classified, config.lead_time_days, config.lead_time_sd_days)
-    reorder = compute_eoq(reorder, config.ordering_cost_per_order, config.holding_rate)
+
+    supply_params = extract_supply_parameters(clean, config)
+    merged = pd.merge(classified, supply_params, on="Description", how="left")
+    merged["unit_cost"] = merged["unit_cost"].where(merged["unit_cost_is_real"], merged["avg_unit_price"])
+
+    reorder = compute_reorder_points(merged)
+    reorder = compute_eoq(reorder)
     return windowed, reorder.sort_values("safety_stock_investment", ascending=False)
 
 
@@ -85,17 +91,21 @@ def run_policies_for_sku(sku_row: pd.Series, demand: np.ndarray, config: Config)
     reorder_point = round(sku_row["reorder_point_variable_leadtime"])
     order_qty = max(round(sku_row["eoq_units"]), 1)
     order_up_to = reorder_point + order_qty
-    inventory_cost_per_unit_day = config.holding_rate * sku_row["avg_unit_price"] / 365
+    # This SKU's own lead time/cost/holding rate (real per-SKU data when the
+    # source has it -- see extract_supply_parameters() -- rather than one
+    # flat assumption applied to every SKU alike.
+    leadtime = max(round(sku_row["lead_time_days"]), 1)
+    inventory_cost_per_unit_day = sku_row["holding_rate"] * sku_row["unit_cost"] / 365
 
     common = dict(
         demand=demand,
         mean=mean_sim,
         sd=sd_sim,
-        leadtime=config.lead_time_days,
+        leadtime=leadtime,
         service_level=sku_row["service_level"],
         shortage_cost=sku_row["avg_unit_price"],
         inventory_cost=inventory_cost_per_unit_day,
-        ordering_cost=config.ordering_cost_per_order,
+        ordering_cost=sku_row["ordering_cost_per_order"],
     )
 
     with warnings.catch_warnings():

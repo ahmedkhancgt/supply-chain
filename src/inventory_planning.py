@@ -41,19 +41,35 @@ DEFAULT_SERVICE_LEVEL_MAP = {
 }
 
 
+# Columns Data.xlsx carries per-transaction that older sources (e.g. the
+# original Germany.xlsx) don't. extract_supply_parameters() averages each
+# per SKU when the column is present, and falls back independently -- one
+# field at a time, not all-or-nothing -- to the matching Config placeholder
+# when it's missing, so a source with only some of these still works.
+SUPPLY_PARAM_COLUMNS = {
+    "lead_time_days": "lead_time_days",
+    "lead_time_sd_days": "lead_time_sd_days",
+    "ordering_cost_per_order": "ordering_cost_per_order",
+    "holding_rate": "holding_rate",
+}
+
+
 @dataclass(frozen=True)
 class Config:
-    data_path: Path = Path("data/Germany.xlsx")
+    data_path: Path = Path("data/Data.xlsx")
     output_dir: Path = Path("output")
     country: str = "Germany"
     analysis_window_months: int = 4
-    lead_time_days: float = 12
-    lead_time_sd_days: float = 2
     default_service_level: float = 0.75
     service_level_map: dict = field(default_factory=lambda: dict(DEFAULT_SERVICE_LEVEL_MAP))
-    # Not present in the transaction data (they're operating costs, not sales
-    # records) — these are placeholders. Replace with real figures before
-    # trusting eoq_units / annual_logistics_cost for purchasing decisions.
+    # Fallback values, used only for a SKU/source missing the matching real
+    # column (lead_time_days, lead_time_sd_days, ordering_cost_per_order,
+    # holding_rate, Cost) -- not present in the original Germany.xlsx, which
+    # is why these placeholders existed in the first place. Data.xlsx
+    # supplies all but Cost's use for the newsvendor salvage/penalty inputs
+    # in advanced_analytics.py, which remain placeholders regardless.
+    lead_time_days: float = 12
+    lead_time_sd_days: float = 2
     ordering_cost_per_order: float = 50.0
     holding_rate: float = 0.20
 
@@ -86,6 +102,57 @@ def clean_transactions(df: pd.DataFrame) -> pd.DataFrame:
         before, len(df), before - len(df),
     )
     return df
+
+
+def extract_supply_parameters(clean: pd.DataFrame, config: Config) -> pd.DataFrame:
+    """Per-SKU lead time, cost, and holding-rate parameters, plus a real
+    per-unit cost when the source has one.
+
+    Data.xlsx carries lead_time_days/lead_time_sd_days/ordering_cost_per_
+    order/holding_rate/Cost as per-transaction columns -- not perfectly
+    constant per SKU (a handful of products show 2-6 distinct
+    lead_time_days values across their rows), so each is averaged per SKU
+    here rather than looked up per row. A source lacking one of these
+    columns (e.g. the original Germany.xlsx) falls back to Config's flat
+    placeholder for that field alone -- each column is independent, so a
+    source with only some of them still gets real data for the rest.
+
+    unit_cost feeds anything that values inventory at what it cost to buy
+    rather than what it sells for (EOQ's holding-cost basis, safety-stock
+    investment) -- falls back to avg_unit_price (selling price) when there's
+    no real Cost column, which is what this pipeline used unconditionally
+    before Data.xlsx existed.
+    """
+    descriptions = clean[["Description"]].drop_duplicates()
+    params = descriptions.copy()
+
+    for field_name, column in SUPPLY_PARAM_COLUMNS.items():
+        default = getattr(config, field_name)
+        if column in clean.columns:
+            per_sku = clean.groupby("Description")[column].mean()
+            params[field_name] = params["Description"].map(per_sku)
+            logger.info(
+                "%s: real per-SKU data from column '%s' (mean %.3g, range %.3g-%.3g)",
+                field_name, column, per_sku.mean(), per_sku.min(), per_sku.max(),
+            )
+        else:
+            params[field_name] = default
+            logger.info(
+                "%s: column '%s' not in source data; using Config placeholder %.3g for every SKU",
+                field_name, column, default,
+            )
+
+    if "Cost" in clean.columns:
+        per_sku_cost = clean.groupby("Description")["Cost"].mean()
+        params["unit_cost"] = params["Description"].map(per_sku_cost)
+        params["unit_cost_is_real"] = True
+        logger.info("unit_cost: real per-SKU data from column 'Cost'")
+    else:
+        params["unit_cost"] = np.nan  # filled in from avg_unit_price once merged (see run())
+        params["unit_cost_is_real"] = False
+        logger.info("unit_cost: no 'Cost' column in source data; will fall back to avg_unit_price per SKU")
+
+    return params
 
 
 def filter_recent_window(df: pd.DataFrame, months: int) -> pd.DataFrame:
@@ -147,8 +214,14 @@ def classify_products(stats: pd.DataFrame, service_level_map: dict, default_serv
     return pd.merge(stats, mix[["Description", "product_mix", "service_level"]], on="Description", how="left")
 
 
-def compute_reorder_points(df: pd.DataFrame, lead_time_days: float, lead_time_sd_days: float) -> pd.DataFrame:
+def compute_reorder_points(df: pd.DataFrame) -> pd.DataFrame:
+    """Requires df to already have (per-SKU) average, sd, service_level,
+    lead_time_days, lead_time_sd_days, and unit_cost -- see
+    extract_supply_parameters().
+    """
     df = df.copy()
+    lead_time_days = df["lead_time_days"]
+    lead_time_sd_days = df["lead_time_sd_days"]
     demand_lead_time = df["average"] * lead_time_days
     safety_factor = norm.ppf(df["service_level"])
 
@@ -173,15 +246,24 @@ def compute_reorder_points(df: pd.DataFrame, lead_time_days: float, lead_time_sd
         (df["safety_stock_variable_leadtime"] / df["safety_stock_fixed_leadtime"] - 1) * 100,
         np.nan,
     )
-    df["safety_stock_investment"] = df["safety_stock_variable_leadtime"] * df["avg_unit_price"]
+    # Valued at what the unit cost to acquire (real Cost data when available,
+    # selling price otherwise) -- capital tied up in safety stock, not the
+    # unrealized margin on it.
+    df["safety_stock_investment"] = df["safety_stock_variable_leadtime"] * df["unit_cost"]
     return df
 
 
-def compute_eoq(df: pd.DataFrame, ordering_cost_per_order: float, holding_rate: float) -> pd.DataFrame:
+def compute_eoq(df: pd.DataFrame) -> pd.DataFrame:
+    """Requires df to already have (per-SKU) average, unit_cost,
+    ordering_cost_per_order, and holding_rate -- see
+    extract_supply_parameters().
+    """
     df = df.copy()
     df["annual_demand"] = df["average"] * 365
+    ordering_cost_per_order = df["ordering_cost_per_order"]
+    holding_rate = df["holding_rate"]
 
-    holding_cost_per_unit = holding_rate * df["avg_unit_price"]
+    holding_cost_per_unit = holding_rate * df["unit_cost"]
     order_cycle_years = np.sqrt(
         2 * ordering_cost_per_order / (df["annual_demand"] * holding_cost_per_unit)
     )
@@ -199,7 +281,7 @@ def compute_eoq(df: pd.DataFrame, ordering_cost_per_order: float, holding_rate: 
     df["annual_ordering_cost"] = (df["annual_demand"] / df["eoq_units"]) * ordering_cost_per_order
     df["annual_holding_cost"] = (df["eoq_units"] / 2) * holding_cost_per_unit
     df["annual_logistics_cost"] = (
-        df["annual_ordering_cost"] + df["annual_holding_cost"] + df["avg_unit_price"] * df["annual_demand"]
+        df["annual_ordering_cost"] + df["annual_holding_cost"] + df["unit_cost"] * df["annual_demand"]
     )
     return df
 
@@ -311,8 +393,17 @@ def run(config: Config) -> pd.DataFrame:
     daily = daily_product_sales(windowed)
     stats = product_stats(daily)
     classified = classify_products(stats, config.service_level_map, config.default_service_level)
-    reorder = compute_reorder_points(classified, config.lead_time_days, config.lead_time_sd_days)
-    reorder = compute_eoq(reorder, config.ordering_cost_per_order, config.holding_rate)
+
+    # extract_supply_parameters() runs on the full cleaned history (not just
+    # the analysis window) since lead time/cost are supplier attributes, not
+    # a demand outcome -- more rows to average over, and no reason to
+    # restrict them to the same recent-sales window as `average`/`sd`.
+    supply_params = extract_supply_parameters(clean, config)
+    merged = pd.merge(classified, supply_params, on="Description", how="left")
+    merged["unit_cost"] = merged["unit_cost"].where(merged["unit_cost_is_real"], merged["avg_unit_price"])
+
+    reorder = compute_reorder_points(merged)
+    reorder = compute_eoq(reorder)
 
     summary = build_summary(reorder)
     logger.info("Executive summary: %s", summary)

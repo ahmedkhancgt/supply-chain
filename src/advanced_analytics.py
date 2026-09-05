@@ -23,6 +23,12 @@ Uses the full cleaned transaction history (not the 4-month window
 inventory_planning.py uses for reorder planning) since price elasticity and
 demand-pattern classification benefit from more history, not a recent
 snapshot.
+
+`resolve_unit_costs()` uses a real per-SKU `Cost` column when the source
+data has one (e.g. Data.xlsx) instead of the `COST_MARGIN` placeholder
+(cost = 40% of price) this pipeline used unconditionally before that data
+existed -- COST_MARGIN remains the fallback for a source without one (e.g.
+the original Germany.xlsx).
 """
 
 from __future__ import annotations
@@ -65,15 +71,30 @@ PRICE_OPTIMIZATION_TOP_N = 5
 MIN_RELATIVE_PRICE_SPREAD = 0.01  # (max-min)/mean price; below this the fit has nothing to learn from
 PER_SKU_OPTIMIZATION_TIMEOUT_S = 15
 
-# Not present in the transaction data -- same category of placeholder as
-# Config.ordering_cost_per_order / holding_rate. COST_MARGIN matches the
-# assumption both original scripts used (cost = 40% of price). Salvage/
-# penalty default to 0 to match Seasonal_Inventory.py's own per-SKU loop
-# (its manual single-item example used 0.7/0.4, but the actual per-SKU
-# production loop used 0, 0) -- replace with real figures if available.
+# Fallback only -- used for a SKU when the source data has no real Cost
+# column (e.g. the original Germany.xlsx). Matches the assumption both
+# original scripts used (cost = 40% of price) for that case. resolve_unit_
+# costs() below uses a real per-SKU Cost column instead whenever the source
+# provides one (e.g. Data.xlsx). Salvage/penalty default to 0 to match
+# Seasonal_Inventory.py's own per-SKU loop (its manual single-item example
+# used 0.7/0.4, but the actual per-SKU production loop used 0, 0) -- no
+# source used by this pipeline carries real salvage/penalty figures yet.
 COST_MARGIN = 0.4
 SALVAGE_RATE = 0.0
 PENALTY_RATE = 0.0
+
+
+def resolve_unit_costs(clean: pd.DataFrame, cost_margin: float) -> pd.Series:
+    """Per-SKU unit cost, indexed by Description: the real Cost column's
+    mean when the source has one (e.g. Data.xlsx), else cost_margin x mean
+    price -- the placeholder this pipeline used unconditionally before
+    real cost data existed (e.g. the original Germany.xlsx).
+    """
+    if "Cost" in clean.columns:
+        logger.info("Using real per-SKU 'Cost' column for unit cost")
+        return clean.groupby("Description")["Cost"].mean()
+    logger.info("No 'Cost' column in source data; falling back to COST_MARGIN=%.2f x price per SKU", cost_margin)
+    return clean.groupby("Description")["Price"].mean() * cost_margin
 
 
 def classify_demand_pattern(clean: pd.DataFrame) -> pd.DataFrame:
@@ -118,14 +139,14 @@ def weekly_price_sales(clean: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def compute_price_elasticity(weekly: pd.DataFrame, min_weeks: int, cost_margin: float) -> pd.DataFrame:
+def compute_price_elasticity(weekly: pd.DataFrame, min_weeks: int, unit_cost_by_sku: pd.Series) -> pd.DataFrame:
     rows = []
     skipped_sparse = skipped_error = 0
     for description, group in weekly.groupby("Description"):
         if group["weekyear"].nunique() < min_weeks or group["price"].nunique() < 2:
             skipped_sparse += 1
             continue
-        cost = cost_margin * group["price"].max()
+        cost = unit_cost_by_sku[description]
         current_price = group["price"].mean()
         try:
             elasticity = inv.linear_elasticity(group["price"], group["total_sales"], current_price, cost)
@@ -144,16 +165,15 @@ def compute_price_elasticity(weekly: pd.DataFrame, min_weeks: int, cost_margin: 
     return pd.DataFrame(rows)
 
 
-def _fit_single_product_optimization(description: str, group: pd.DataFrame, cost_margin: float):
-    cost = cost_margin * group["price"].max()
+def _fit_single_product_optimization(description: str, group: pd.DataFrame, unit_cost: float):
     current_price = group["price"].mean()
     return inv.single_product_optimization(
         group["price"], group["total_sales"], description,
-        current_price=current_price, cost=cost,
+        current_price=current_price, cost=unit_cost,
     )
 
 
-def optimize_prices_for_top_skus(weekly: pd.DataFrame, top_n: int, min_weeks: int, cost_margin: float) -> dict:
+def optimize_prices_for_top_skus(weekly: pd.DataFrame, top_n: int, min_weeks: int, unit_cost_by_sku: pd.Series) -> dict:
     weeks_per_sku = weekly.groupby("Description")["weekyear"].nunique()
     eligible = weeks_per_sku[weeks_per_sku >= min_weeks].index
 
@@ -177,7 +197,7 @@ def optimize_prices_for_top_skus(weekly: pd.DataFrame, top_n: int, min_weeks: in
     for description in candidates:
         group = weekly[weekly["Description"] == description]
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(_fit_single_product_optimization, description, group, cost_margin)
+            future = executor.submit(_fit_single_product_optimization, description, group, unit_cost_by_sku[description])
             try:
                 results[description] = future.result(timeout=PER_SKU_OPTIMIZATION_TIMEOUT_S)
             except concurrent.futures.TimeoutError:
@@ -195,7 +215,7 @@ def optimize_prices_for_top_skus(weekly: pd.DataFrame, top_n: int, min_weeks: in
     return results
 
 
-def single_period_ordering(clean: pd.DataFrame, cost_margin: float, salvage_rate: float, penalty_rate: float) -> pd.DataFrame:
+def single_period_ordering(clean: pd.DataFrame, unit_cost_by_sku: pd.Series, salvage_rate: float, penalty_rate: float) -> pd.DataFrame:
     """Newsvendor-style order quantity per product, using yearly demand
     totals as the underlying "how much do I need for one period" estimate.
     """
@@ -222,7 +242,7 @@ def single_period_ordering(clean: pd.DataFrame, cost_margin: float, salvage_rate
             no_sd_signal,
         )
     stats["sd"] = stats["sd"].where(stats["sd"] > 0, stats["expected_demand"] * 0.1)
-    stats["cost"] = stats["price"] * cost_margin
+    stats["cost"] = stats["Description"].map(unit_cost_by_sku)
     stats["salvage"] = stats["price"] * salvage_rate
     stats["penalty"] = stats["price"] * penalty_rate
 
@@ -315,11 +335,13 @@ def run(config: Config) -> None:
     abc = classify_products(product_stats(daily_product_sales(clean)), config.service_level_map, config.default_service_level)
     demand_pattern = pd.merge(demand_pattern, abc[["Description", "product_mix"]], on="Description", how="left")
 
-    weekly = weekly_price_sales(clean)
-    elasticity = compute_price_elasticity(weekly, MIN_WEEKS_FOR_ELASTICITY, COST_MARGIN)
-    optimizations = optimize_prices_for_top_skus(weekly, PRICE_OPTIMIZATION_TOP_N, MIN_WEEKS_FOR_ELASTICITY, COST_MARGIN)
+    unit_cost_by_sku = resolve_unit_costs(clean, COST_MARGIN)
 
-    single_period = single_period_ordering(clean, COST_MARGIN, SALVAGE_RATE, PENALTY_RATE)
+    weekly = weekly_price_sales(clean)
+    elasticity = compute_price_elasticity(weekly, MIN_WEEKS_FOR_ELASTICITY, unit_cost_by_sku)
+    optimizations = optimize_prices_for_top_skus(weekly, PRICE_OPTIMIZATION_TOP_N, MIN_WEEKS_FOR_ELASTICITY, unit_cost_by_sku)
+
+    single_period = single_period_ordering(clean, unit_cost_by_sku, SALVAGE_RATE, PENALTY_RATE)
 
     output_dir = config.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)

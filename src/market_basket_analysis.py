@@ -55,11 +55,17 @@ from inventory_planning import Config, clean_transactions, load_transactions
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("market_basket_analysis")
 
-# Sized for this repo's ~700-invoice Germany data (0.009, the notebook's
-# original, was tuned for a ~37,000-invoice dataset and produces tens of
-# thousands of low-count, mostly-noise rules here). Raise this if the
-# dataset grows and rule counts balloon again.
-MIN_SUPPORT = 0.02
+# Re-checked directly against whichever source Config.data_path points at,
+# since the right threshold depends on how many invoices/products there
+# are, not a fixed number. The notebook's original 0.009 was tuned for a
+# ~37,000-invoice dataset (mostly noise on anything smaller); 0.02 worked
+# for the original ~700-invoice/2,400-product Germany.xlsx slice but
+# produced zero rules against Data.xlsx's Germany slice (634 invoices
+# spread across 1,250 products -- a sparser catalog-to-basket ratio even
+# at a similar invoice count) -- checked directly: 0.02 -> 0 rules,
+# 0.006 -> 8, 0.004 -> 26. Re-verify this constant if the data source
+# changes again.
+MIN_SUPPORT = 0.006
 LIFT_MIN_THRESHOLD = 1.0
 SLOW_MOVER_QUANTILES = 8
 SLOW_MOVER_BIN = 0  # lowest-quantity octile; see module docstring
