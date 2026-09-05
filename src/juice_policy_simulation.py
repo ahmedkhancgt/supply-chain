@@ -10,6 +10,13 @@ SKU shares the same lead time/service level/costs (a fair comparison by
 construction), and results are written as one CSV plus two comparison
 charts instead of ad hoc per-call CSVs and a single messy time-series plot.
 
+Lead time, service level, and cost assumptions come from
+inventory_planning.Config, the same as policy_simulation.py -- one shared
+set of business placeholders across every pipeline in this repo instead of
+a second copy of the same numbers. DATA_PATH stays local: Config.data_path
+points at Germany.xlsx, a different dataset with a different schema, so it
+isn't reusable here the way the cost/lead-time assumptions are.
+
 Two real bugs in section16.py are fixed here rather than carried over:
 1. `skus[['apple_juice']]` / `skus[['cantalop_juice']]` (double brackets)
    select a DataFrame instead of a Series, which crashes `inventorize`
@@ -41,22 +48,20 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm, poisson
 
+from inventory_planning import Config
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("juice_policy_simulation")
 
 DATA_PATH = Path("data/sku_distributions.csv")
-OUTPUT_DIR = Path("output")
-
-LEAD_TIME_DAYS = 7
-SERVICE_LEVEL = 0.9
 REVIEW_PERIOD_DAYS = 7
 
-# Not present in the data -- same category of placeholder used throughout
-# this project's other pipelines (ordering_cost_per_order / holding_rate in
-# inventory_planning.py). section16.py's own calls ranged from 1 to 100;
-# these match its final (most deliberate) comparison block.
-ORDERING_COST = 100
-INVENTORY_COST = 1
+# sku_distributions.csv has no price column, so Config.holding_rate (a % of
+# item value per year) has no per-unit value to apply to -- unlike
+# policy_simulation.py, which multiplies it by each SKU's real
+# avg_unit_price. This placeholder stands in for that missing price so the
+# same holding_rate can still convert into a $/unit/day inventory cost.
+ASSUMED_UNIT_PRICE = 1.0
 
 # SKUs averaging fewer than this many units/day get the Poisson model
 # (appropriate for low, intermittent counts); at or above it, Normal.
@@ -103,8 +108,12 @@ def compute_policy_parameters(demand: np.ndarray, leadtime: int, service_level: 
     }
 
 
-def run_policies_for_sku(sku_name: str, demand: np.ndarray, is_poisson: bool) -> list[dict]:
-    params = compute_policy_parameters(demand, LEAD_TIME_DAYS, SERVICE_LEVEL, is_poisson)
+def run_policies_for_sku(sku_name: str, demand: np.ndarray, is_poisson: bool, config: Config) -> list[dict]:
+    leadtime = config.lead_time_days
+    service_level = config.default_service_level
+    inventory_cost_per_unit_day = config.holding_rate * ASSUMED_UNIT_PRICE / 365
+
+    params = compute_policy_parameters(demand, leadtime, service_level, is_poisson)
     logger.info(
         "%s: mean=%.2f sd=%.2f model=%s reorder_point=%d order_qty=%d order_up_to=%d",
         sku_name, params["mean"], params["sd"], "Poisson" if is_poisson else "Normal",
@@ -113,11 +122,11 @@ def run_policies_for_sku(sku_name: str, demand: np.ndarray, is_poisson: bool) ->
 
     common = dict(
         demand=demand,
-        leadtime=LEAD_TIME_DAYS,
-        service_level=SERVICE_LEVEL,
+        leadtime=leadtime,
+        service_level=service_level,
         shortage_cost=1,
-        ordering_cost=ORDERING_COST,
-        inventory_cost=INVENTORY_COST,
+        ordering_cost=config.ordering_cost_per_order,
+        inventory_cost=inventory_cost_per_unit_day,
     )
     reorder_point, order_qty, order_up_to = params["reorder_point"], params["order_qty"], params["order_up_to"]
 
@@ -147,7 +156,7 @@ def run_policies_for_sku(sku_name: str, demand: np.ndarray, is_poisson: bool) ->
                 "sku": sku_name,
                 "demand_model": "Poisson" if is_poisson else "Normal",
                 "policy": policy,
-                "target_service_level": SERVICE_LEVEL,
+                "target_service_level": service_level,
                 "reorder_point_used": reorder_point,
                 "order_qty_or_max_used": order_qty if policy == "min_Q" else order_up_to,
                 **metrics,
@@ -165,7 +174,7 @@ def save_plots(results: pd.DataFrame, output_dir: Path) -> None:
     ax.set_title("Simulated Item Fill Rate by Policy (Juice SKUs)")
     ax.set_ylabel("Item fill rate")
     ax.set_xlabel("")
-    ax.axhline(SERVICE_LEVEL, color="black", linestyle="--", linewidth=1, label="target service level")
+    ax.axhline(results["target_service_level"].iloc[0], color="black", linestyle="--", linewidth=1, label="target service level")
     ax.legend(title="Policy", bbox_to_anchor=(1.02, 1), loc="upper left")
     ax.tick_params(axis="x", rotation=0)
     fig.tight_layout()
@@ -188,6 +197,7 @@ def save_plots(results: pd.DataFrame, output_dir: Path) -> None:
 
 
 def main() -> None:
+    config = Config()
     skus = load_sku_demand(DATA_PATH)
     sku_columns = ["apple_juice", "grape_juice", "cantalop_juice"]
 
@@ -195,15 +205,16 @@ def main() -> None:
     for sku_name in sku_columns:
         demand = skus[sku_name].to_numpy()
         is_poisson = demand.mean() < POISSON_MEAN_THRESHOLD
-        all_rows.extend(run_policies_for_sku(sku_name, demand, is_poisson))
+        all_rows.extend(run_policies_for_sku(sku_name, demand, is_poisson, config))
 
     results = pd.DataFrame(all_rows)
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    csv_path = OUTPUT_DIR / "juice_policy_simulation.csv"
+    output_dir = config.output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = output_dir / "juice_policy_simulation.csv"
     results.to_csv(csv_path, index=False)
     logger.info("Saved %s", csv_path)
 
-    save_plots(results, OUTPUT_DIR)
+    save_plots(results, output_dir)
 
     summary_cols = ["sku", "demand_model", "policy", "target_service_level", "Item_fill_rate", "cycle_service_level", "average_inventory_level", "total_lost_sales"]
     logger.info("Results:\n%s", results[summary_cols].round(3).to_string(index=False))

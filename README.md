@@ -129,7 +129,18 @@ python3 src/juice_policy_simulation.py
   on `cantalop_juice`. Fixed to single-bracket Series selection.
 - **Fair-comparison fix**: the original's final comparison mixed
   `leadtime=7` for one policy with `leadtime=2` for the other four in the
-  same table. Every policy here shares one `LEAD_TIME_DAYS`.
+  same table. Every policy here shares one lead time.
+- **Shared config, like `policy_simulation.py`**: lead time, target
+  service level, and ordering/holding cost all come from
+  `inventory_planning.Config` — the same shared business-assumption
+  placeholders used across every pipeline in this repo, instead of a
+  second hardcoded copy of the same numbers living in this file. Only
+  `Config.data_path` isn't reused (it points at `Germany.xlsx`, a
+  different dataset with a different schema). Since
+  `sku_distributions.csv` has no price column, `Config.holding_rate`
+  (a % of item value) is applied to a placeholder `ASSUMED_UNIT_PRICE`
+  instead of a real `avg_unit_price` — flagged in the code as an
+  additional placeholder specific to this script.
 - **Parameters are derived, not hand-picked**: the original hardcoded
   `Quantity`/`Max`/`Min`/`Base` per call (e.g. `Max=400`), and two of
   those five configurations turned out to silently miss their own stated
