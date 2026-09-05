@@ -244,3 +244,61 @@ classifier isn't learning a genuine behavioral pattern so much as
 recovering its own label through a renamed copy of it. Kept as-is to
 match the original scripts' feature set, but reported here rather than
 silently presenting the resulting ~100% accuracy as a clean result.
+
+## Market basket analysis
+
+`src/market_basket_analysis.py` mines which products get bought together
+(via `mlxtend`'s Apriori algorithm) and cross-references the resulting
+rules against genuinely slow-moving products, to surface potential
+cross-sell pairings for stock that isn't selling on its own. Adapted from
+`MarketBasketanalysis_1.ipynb` (uploaded separately), which assumed a
+pre-existing `retail_clean.csv` this repo doesn't have — rebuilt on the
+same cleaned Germany transaction data `inventory_planning.py` loads.
+
+```bash
+python3 src/market_basket_analysis.py
+```
+
+Writes `basket_association_rules.csv`, `basket_slow_mover_cross_sell.csv`,
+`basket_slow_movers.csv`, and three charts (`basket_order_size.png`,
+`basket_top_sellers.png`, `basket_rules_scatter.png`) to `output/`.
+
+Two real bugs from the notebook are fixed here rather than carried over:
+
+- **"slow_moving" was actually the second-fastest-moving octile.**
+  `pd.qcut(total_quantity_sold, 8, labels=False)` labels bins ascending —
+  0 is the lowest-quantity octile, 7 the highest — and the notebook
+  filtered `cut==6`. Checked directly against this data: bin 6 covers
+  products that sold 98–188 units total, solidly mid-to-high volume. A
+  step meant to find cross-sell opportunities for overstocked slow movers
+  was actually targeting already-popular products. Fixed to bin `0`.
+- **Multi-item association rules were silently truncated to one item.**
+  `rules["antecedents"].apply(lambda x: list(x)[0])` keeps only the first
+  element of what `mlxtend` returns as a set. Checked directly against
+  this data: 436 of 930 rules (47%) involve more than one item on at
+  least one side — nearly half the rule table would have shown only part
+  of the real rule (e.g. "buy A → buy C" when the actual rule was "buy A
+  and B → buy C"), with no visible sign anything was dropped. Fixed by
+  joining every item into one readable string instead of indexing into
+  the set.
+
+Also: `MIN_SUPPORT` is sized to this repo's ~700-invoice Germany data.
+The notebook's original `min_support=0.009` was tuned for a
+~37,000-invoice dataset and produces 36,658 mostly-noise rules here (most
+from itemsets appearing in a single-digit number of invoices) — checked
+directly. `association_rules` was also called without `min_threshold`,
+silently taking `mlxtend`'s generic default (0.8) rather than the
+analytically meaningful cutoff for lift specifically (only lift `> 1.0`
+is a positive association) — made explicit here as `LIFT_MIN_THRESHOLD`.
+
+**Real finding, not a bug**: at `MIN_SUPPORT`, zero rules involve a
+slow-moving product on either side, in this dataset. That's expected, not
+a mistake in the code — a product has to appear in a minimum share of
+invoices to be included in any rule at all, and by definition the
+slow-movers (bottom octile, 1–6 units sold total) are too rare to clear
+that bar. Finding real cross-sell pairings for them would need a support
+threshold scoped specifically to those products, not the same threshold
+used for the catalog-wide rule mining above — the two questions ("what do
+people buy together in general" vs. "what could I bundle with this
+specific slow-moving item") need different statistical treatment, which
+this script doesn't attempt.

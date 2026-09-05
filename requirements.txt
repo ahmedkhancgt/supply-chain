@@ -7,3 +7,4 @@ openpyxl>=3.1
 inventorize3>=0.0.1
 inventorize>=1.2.6
 scikit-learn>=1.3
+mlxtend>=0.23
