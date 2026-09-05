@@ -288,6 +288,70 @@ recovering its own label through a renamed copy of it. Kept as-is to
 match the original scripts' feature set, but reported here rather than
 silently presenting the resulting ~100% accuracy as a clean result.
 
+## Cross-country product mix and supplier segmentation
+
+`src/supplier_segmentation.py` covers two analyses that operate across
+the whole business rather than one country's demand, so — unlike the
+other scripts — it loads every country in `data/Data.xlsx` regardless of
+`Config.country`:
+
+1. **Cross-country product mix** (`supplier_country_product_mix.csv`,
+   `supplier_country_product_mix.png`) — the same ABC (volume x revenue)
+   classification `inventory_planning.classify_products()` computes for
+   one country, run independently per country via
+   `inventorize3.productmix_storelevel` — a SKU that's a top seller in
+   one country can be a long-tail item in another.
+2. **Supplier risk/value segmentation** (`supplier_risk_value_segmentation.csv`,
+   `supplier_risk_value_matrix.png`) — a Kraljic-matrix-style
+   classification (Strategic / Leverage / Critical / Routine) per SKU,
+   from its total procurement spend (`Cost x Quantity`, summed) and a
+   composite risk score (`availability + no_suppliers + standard +
+   price_fluctuation`, columns Data.xlsx carries per transaction).
+
+```bash
+python3 src/supplier_segmentation.py
+```
+
+Adapted from `ABC_SUPPLIER.py` (uploaded separately), which read
+`online_retail2.csv` and a separate `supplier_data.csv` this repo
+doesn't have — rebuilt on the same cleaned transaction data
+`inventory_planning.py` loads, since Data.xlsx already carries the
+risk-factor columns and `Cost` the original needed a second file for.
+The single-country ABC/multi-criteria-ABC analysis at the top of the
+original script duplicates `classify_products()` and isn't reimplemented
+here.
+
+Several real issues from the original are fixed rather than carried over:
+
+- **`retail.dropna()` drops far more than intended** — it removes any
+  row with a null in *any* column, not just ones that matter (e.g. a
+  missing Customer ID for a guest checkout). Uses `clean_transactions()`
+  instead, which only requires the columns that make a row a usable
+  transaction. Also fixes the original's missing cancellation filter
+  (invoices starting with `"C"`), which `clean_transactions()` already
+  handles.
+- **Row-by-row category assignment**:
+  `for i in range(supplier.shape[0]): supplier.loc[i,'category'] = category(...)`
+  is O(n) individual writes, and only works because `supplier` still has
+  an untouched `0..n-1` `RangeIndex` — it would silently write to the
+  wrong rows (or raise `KeyError`) the moment any filtering happened
+  upstream. Replaced with a vectorized `np.select`.
+- **Hardcoded value/risk thresholds sized to a file this repo doesn't
+  have**: the original's quadrant function splits on `value >= 3,000,000`
+  and `risk_index >= 1`. Checked directly against Data.xlsx: per-SKU
+  procurement spend ranges $22-$7,500 (median $333) — nothing ever
+  reaches 3,000,000, so every SKU would land in Critical or Routine and
+  the matrix would never produce a Strategic or Leverage result. Fixed
+  with the standard Kraljic-matrix approach instead: split at the
+  *median* of each axis, computed from this data (verified: an even
+  ~950/950/570/570 split across the four quadrants).
+- **Ambiguous `value = price * Quantity`**: the original's generic
+  `price` column could mean either the supplier's cost or the
+  customer-facing selling price — Data.xlsx has both. Since this is a
+  procurement-risk matrix (how much you pay suppliers, not what you
+  resell for), `value` here is `Cost x Quantity`, not `Price x Quantity`
+  (Revenue, already used for selling-side value elsewhere in this repo).
+
 ## Market basket analysis
 
 `src/market_basket_analysis.py` mines which products get bought together
