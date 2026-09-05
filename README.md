@@ -302,31 +302,3 @@ used for the catalog-wide rule mining above — the two questions ("what do
 people buy together in general" vs. "what could I bundle with this
 specific slow-moving item") need different statistical treatment, which
 this script doesn't attempt.
-
-### Getting recommendations for a customer's basket
-
-`recommend_products(rules, basket_items, top_n=5)` in
-`src/market_basket_analysis.py` is a standalone helper (not run
-automatically) that turns the mined rules into actual per-customer
-recommendations: a rule "fires" only once every item in its antecedent
-set is present in the basket (so a 2-item-antecedent rule needs both
-items, not just one), contributing its consequent(s) as recommendations,
-ranked by lift then confidence.
-
-```python
-from inventory_planning import Config, load_transactions, clean_transactions
-from market_basket_analysis import build_baskets, mine_association_rules, recommend_products
-
-config = Config()
-clean = clean_transactions(load_transactions(config.data_path, country=config.country))
-rules = mine_association_rules(build_baskets(clean))
-
-recommend_products(rules, {"ROUND SNACK BOXES SET OF4 WOODLAND "}, top_n=5)
-```
-
-Verified on real data: with both `RED RETROSPOT CHARLOTTE BAG` and
-`ROUND SNACK BOXES SET OF4 WOODLAND` in the basket, `WOODLAND CHARLOTTE
-BAG` comes back as the top recommendation (confidence 1.0, lift 5.7) —
-but that specific recommendation disappears if only one of the two items
-is in the basket, since its rule genuinely needs both antecedents, not
-just one of them.
