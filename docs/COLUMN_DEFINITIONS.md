@@ -5,10 +5,13 @@ This document explains every derived column produced by
 underlying formula and a worked numeric example. It's meant to be readable
 without knowing pandas or the statistics behind it in advance.
 
-All examples below use one real row from a run against `data/Germany.xlsx`:
+All examples below use one real row from a run against `data/Data.xlsx`
+(`Config.country = "Germany"`):
 
-**STOOL HOME SWEET HOME** — `average = 30.5`, `sd = 41.72`,
-`product_mix = A_A`, `service_level = 0.95`
+**Regency Cakestand Tier** — `average = 28.5`, `sd = 38.89`,
+`product_mix = A_A`, `service_level = 0.95`, `lead_time_days = 24.0`,
+`lead_time_sd_days = 6.5`, `unit_cost = 7.89`, `ordering_cost_per_order
+= 62.08`, `holding_rate = 0.268`
 
 ## Contents
 
@@ -61,8 +64,8 @@ Calculated in `product_stats()` by grouping the daily table by
 | `total_revenue` | `sum(total_revenue)` | Total revenue across the whole window |
 | `avg_unit_price` | `total_revenue / total_sales` | Effective average selling price per unit |
 
-**Example:** STOOL HOME SWEET HOME averages 30.5 units/day with a standard
-deviation of 41.72 — a spiky, lumpy seller, not a steady one.
+**Example:** Regency Cakestand Tier averages 28.5 units/day with a
+standard deviation of 38.89 — a spiky, lumpy seller, not a steady one.
 
 ---
 
@@ -111,7 +114,11 @@ running out before the next delivery arrives).
 
 ## 5. Reorder point formulas
 
-Calculated in `compute_reorder_points()`.
+Calculated in `compute_reorder_points()`. `lead_time_days` and
+`lead_time_sd_days` are per-SKU values from `extract_supply_parameters()`
+— real data averaged from the source file's own columns when it has them,
+falling back to a flat `Config` placeholder only for a SKU/source
+missing that column (see the main `README.md`).
 
 ### Demand during lead time
 
@@ -122,7 +129,7 @@ demand_lead_time = average * lead_time_days
 Expected units sold during the time it takes a new order to arrive.
 
 ```
-= 30.5 * 12 = 366 units
+= 28.5 * 24.0 = 684 units
 ```
 
 ### Safety factor
@@ -149,20 +156,20 @@ reorder_point_fixed_leadtime = demand_lead_time + safety_stock_fixed_leadtime
 ```
 
 ```
-sigma_dl_fixed = 41.72 * sqrt(12) = 144.55
-safety_stock_fixed_leadtime = 1.645 * 144.55 ≈ 237.7
-reorder_point_fixed_leadtime = 366 + 237.7 ≈ 603.7
+sigma_dl_fixed = 38.89 * sqrt(24.0) ≈ 190.53
+safety_stock_fixed_leadtime = 1.645 * 190.53 ≈ 313.39
+reorder_point_fixed_leadtime = 684 + 313.39 ≈ 997.39
 ```
 
-Plain English: *"Over 12 days, how much could demand realistically vary,
+Plain English: *"Over 24 days, how much could demand realistically vary,
 and how much extra buffer on top of expected demand do I need to hit my
 service level?"*
 
 ### Model B — lead time itself is uncertain
 
 Accounts for the supplier sometimes delivering early or late
-(`lead_time_sd_days`, default 2 days), on top of demand variability. The
-two sources of uncertainty are combined under one square root:
+(`lead_time_sd_days`), on top of demand variability. The two sources of
+uncertainty are combined under one square root:
 
 ```python
 sigma_dl_variable = sqrt(
@@ -173,15 +180,16 @@ reorder_point_variable_leadtime = demand_lead_time + safety_stock_variable_leadt
 ```
 
 ```
-sigma_dl_variable = sqrt(12 * 41.72**2 + 30.5**2 * 2**2)
-                   = sqrt(20,886 + 3,721) ≈ 156.9
-safety_stock_variable_leadtime = 1.645 * 156.9 ≈ 258.0
-reorder_point_variable_leadtime = 366 + 258.0 ≈ 624.0
+sigma_dl_variable = sqrt(24.0 * 38.89**2 + 28.5**2 * 6.5**2)
+                   = sqrt(24.0 * 1512.5 + 812.25 * 42.25) ≈ 265.74
+safety_stock_variable_leadtime = 1.645 * 265.74 ≈ 437.10
+reorder_point_variable_leadtime = 684 + 437.10 ≈ 1121.10
 ```
 
-This needs *more* safety stock than Model A (258.0 vs. 237.7 units) because
-it's honest about a second source of risk: an unreliable delivery
-schedule, not just unpredictable demand.
+This needs *more* safety stock than Model A (437.10 vs. 313.39 units)
+because it's honest about a second source of risk: an unreliable delivery
+schedule (this SKU's real `lead_time_sd_days` of 6.5 days is substantial
+relative to its 24-day lead time), not just unpredictable demand.
 
 ---
 
@@ -194,7 +202,7 @@ safety_stock_uplift_pct = (
 ```
 
 ```
-= (258.0 / 237.7 - 1) * 100 ≈ 8.5%
+= (437.10 / 313.39 - 1) * 100 ≈ 39.48%
 ```
 
 How much more safety stock a product needs once lead-time uncertainty is
@@ -207,13 +215,20 @@ left as `NaN` for them (division by zero has no meaningful percentage).
 ## 7. `safety_stock_investment`
 
 ```python
-safety_stock_investment = safety_stock_variable_leadtime * avg_unit_price
+safety_stock_investment = safety_stock_variable_leadtime * unit_cost
 ```
 
-Converts safety stock from "units" into money tied up in a buffer for that
-product. This is the column the output files are ranked by — it answers
-"which products' safety stock is costing the most?", which is more
-actionable than ranking by unit count alone.
+Converts safety stock from "units" into money tied up in a buffer for
+that product — valued at what it costs to acquire (`unit_cost`: a real
+per-SKU `Cost` when the source data has one, else `avg_unit_price` as a
+fallback — see `extract_supply_parameters()`), not what it sells for.
+This is the column the output files are ranked by — it answers "which
+products' safety stock is costing the most?", which is more actionable
+than ranking by unit count alone.
+
+```
+= 437.10 * 7.89 ≈ 3,449.48
+```
 
 ---
 
@@ -254,14 +269,15 @@ Reorder point answers *"when do I place an order?"*. EOQ answers a
 different question: *"how much should I order each time?"*. Calculated in
 `compute_eoq()`.
 
-**Important:** unlike every other column in this document, EOQ needs two
-inputs that don't exist anywhere in the transaction data —
-`ordering_cost_per_order` (what it costs to place one order) and
-`holding_rate` (annual cost of carrying one unit in stock, as a fraction
-of its price). `Config` ships these as **placeholders**
-(`ordering_cost_per_order=50.0`, `holding_rate=0.20`) — replace them with
-real figures before using `eoq_units` or `annual_logistics_cost` for
-actual purchasing decisions.
+**Important:** EOQ needs two inputs — `ordering_cost_per_order` (what it
+costs to place one order) and `holding_rate` (annual cost of carrying one
+unit in stock, as a fraction of its price). `extract_supply_parameters()`
+uses real per-SKU values from the source data when available; `Config`
+supplies a flat placeholder (`ordering_cost_per_order=50.0`,
+`holding_rate=0.20`) only for a SKU/source missing that column. If you're
+running against a source without either column, replace the placeholders
+with real figures before trusting `eoq_units` or `annual_logistics_cost`
+for actual purchasing decisions.
 
 ### `annual_demand`
 
@@ -279,24 +295,24 @@ cost (money tied up in stock sitting on a shelf). The quantity that
 minimizes their sum is:
 
 ```python
-holding_cost_per_unit = holding_rate * avg_unit_price
+holding_cost_per_unit = holding_rate * unit_cost
 order_cycle_years = sqrt(2 * ordering_cost_per_order / (annual_demand * holding_cost_per_unit))
 eoq_units = order_cycle_years * annual_demand
 eoq_order_cycle_weeks = order_cycle_years * 52
 ```
 
-**Example** (STOOL HOME SWEET HOME, `avg_unit_price ≈ 10.43`,
-`annual_demand ≈ 11,132.5`, placeholder `ordering_cost_per_order=50`,
-`holding_rate=0.20`):
+**Example** (Regency Cakestand Tier, `unit_cost ≈ 7.89`,
+`annual_demand ≈ 10,402.5`, real per-SKU `ordering_cost_per_order = 62.08`,
+`holding_rate = 0.268`):
 
 ```
-holding_cost_per_unit = 0.20 * 10.43 ≈ 2.087
-order_cycle_years = sqrt(2 * 50 / (11,132.5 * 2.087)) ≈ 0.0656
-eoq_units = 0.0656 * 11,132.5 ≈ 730.4
-eoq_order_cycle_weeks = 0.0656 * 52 ≈ 3.41
+holding_cost_per_unit = 0.268 * 7.89 ≈ 2.11
+order_cycle_years = sqrt(2 * 62.08 / (10,402.5 * 2.11)) ≈ 0.0751
+eoq_units = 0.0751 * 10,402.5 ≈ 781.5
+eoq_order_cycle_weeks = 0.0751 * 52 ≈ 3.91
 ```
 
-So: order about 730 units roughly every 3.4 weeks.
+So: order about 782 units roughly every 3.9 weeks.
 
 ### `eoq_practical_units`
 
@@ -311,8 +327,8 @@ eoq_practical_units = practical_cycle_weeks / 52 * annual_demand
 ```
 
 ```
-practical_cycle_weeks = 2**round(log(3.41 / sqrt(2)) / log(2)) = 2**round(1.27) = 2**1 = 2
-eoq_practical_units = 2/52 * 11,132.5 ≈ 428.2
+practical_cycle_weeks = 2**round(log(3.91 / sqrt(2)) / log(2)) = 2**round(1.47) = 2**1 = 2
+eoq_practical_units = 2/52 * 10,402.5 ≈ 400.1
 ```
 
 This mirrors `inventorize3.TQpractical()` — that function was checked for
@@ -326,15 +342,15 @@ of one row at a time).
 ```python
 annual_ordering_cost = (annual_demand / eoq_units) * ordering_cost_per_order
 annual_holding_cost = (eoq_units / 2) * holding_cost_per_unit
-annual_logistics_cost = annual_ordering_cost + annual_holding_cost + avg_unit_price * annual_demand
+annual_logistics_cost = annual_ordering_cost + annual_holding_cost + unit_cost * annual_demand
 ```
 
 At the true EOQ, `annual_ordering_cost` and `annual_holding_cost` are
 always equal by construction — that's the point the formula solves for.
-For STOOL HOME SWEET HOME both come out to ≈ **762.1**.
+For Regency Cakestand Tier both come out to ≈ **826.4**.
 `annual_logistics_cost` adds the cost of the goods themselves
-(`avg_unit_price * annual_demand`), giving the full annual cost of
-carrying this product: 762.1 + 762.1 + (10.43 × 11,132.5) ≈ **117,685.5**.
+(`unit_cost * annual_demand`), giving the full annual cost of carrying
+this product: 826.4 + 826.4 + (7.89 × 10,402.5) ≈ **83,746.0**.
 
 ### What was deliberately left out
 

@@ -6,37 +6,31 @@ Supply Chain repository
 
 Every script in this repo reads from `Config.data_path`
 (`src/inventory_planning.py`), which points at `data/Data.xlsx` —
-140,000 transactions across 40 countries, replacing the original
-`data/Germany.xlsx` (which is still in the repo but no longer the
-default). `Config.country` still defaults to `"Germany"`, so the pipeline
-analyzes the same 2,867-row Germany slice as before by default; point
-`Config.country` at any of the other 39 countries in the file (or set it
-to `None` for the full unfiltered dataset) to analyze a different scope.
+140,000 transactions across 40 countries. `Config.country` defaults to
+`"Germany"`, analyzing a 2,867-row slice by default; point `Config.country`
+at any of the other 39 countries in the file (or set it to `None` for the
+full unfiltered dataset) to analyze a different scope.
 
 Data.xlsx carries real per-transaction data for several assumptions that
-used to be flat placeholder constants: `lead_time_days`,
+would otherwise be flat placeholder constants: `lead_time_days`,
 `lead_time_sd_days`, `ordering_cost_per_order`, `holding_rate`, and `Cost`
-(a real per-unit cost, where before there was only a selling `Price`).
+(a real per-unit cost, alongside the selling `Price`).
 `inventory_planning.extract_supply_parameters()` averages each of these
 per SKU and merges them into the reorder-point/EOQ pipeline;
 `advanced_analytics.resolve_unit_costs()` does the same for `Cost`. Each
-column falls back **independently** to its old placeholder (`Config`'s
-flat constant, or `COST_MARGIN * price`) when the loaded source doesn't
-have it — so the same code still works unmodified against the original
-Germany.xlsx, or any other source missing some (not necessarily all) of
-these columns. `SALVAGE_RATE` and `PENALTY_RATE` in
+column falls back **independently** to a `Config` placeholder (or
+`COST_MARGIN * price` for cost) if it's ever missing from a source — so
+the pipeline degrades gracefully field-by-field rather than requiring
+every column to be present at once. `SALVAGE_RATE` and `PENALTY_RATE` in
 `advanced_analytics.py` remain flat placeholders regardless — Data.xlsx
 has no equivalent columns for either.
 
-One `market_basket_analysis.py` constant needed re-tuning for the new
-data, not just a fallback: `MIN_SUPPORT` was sized for the original
-Germany.xlsx's ~700 invoices / 2,400 products and produced **zero**
-association rules against Data.xlsx's Germany slice (634 invoices spread
-across 1,250 products — a sparser catalog-to-basket ratio even at a
-similar invoice count) — checked directly (`0.02` → 0 rules, `0.006` → 8,
-`0.004` → 26) before landing on `0.006`. Re-check this constant if the
-data source changes again; it isn't derivable from anything else in the
-file the way the cost/lead-time columns are.
+`market_basket_analysis.py`'s `MIN_SUPPORT` (0.006) was tuned directly
+against Data.xlsx's Germany slice (634 invoices, 1,250 products) —
+checked directly (`0.02` → 0 rules, `0.006` → 8, `0.004` → 26) before
+landing on `0.006`. Re-check this constant if the data source changes;
+it isn't derivable from anything else in the file the way the cost/lead-time
+columns are.
 
 ## Inventory planning pipeline
 
@@ -63,12 +57,11 @@ By default it reads `data/Data.xlsx`, filtered to `country="Germany"` (see
 `country`, `analysis_window_months`).
 
 `lead_time_days`, `lead_time_sd_days`, `ordering_cost_per_order`, and
-`holding_rate` on `Config` are now **fallback values only** — real
-per-SKU data from the source file is used instead whenever it has the
-matching column (`extract_supply_parameters()`), which `Data.xlsx` does
-for all four. They still apply, one at a time, to any SKU/source missing
-its column — e.g. against the original `Germany.xlsx`, which has none of
-them, all four fall back exactly as before.
+`holding_rate` on `Config` are **fallback values only** — real per-SKU
+data from the source file is used instead whenever it has the matching
+column (`extract_supply_parameters()`), which `Data.xlsx` does for all
+four. Each falls back independently, one field at a time, for any
+SKU/source missing its column.
 
 ### Output
 
@@ -78,7 +71,7 @@ browsable in the repo):
 - `reorder_recommendations.csv` / `inventory_report.xlsx` — per-product
   reorder point and safety stock under a fixed lead time and under an
   uncertain lead time, plus economic order quantity (EOQ), ranked by
-  safety-stock investment (units x avg selling price).
+  safety-stock investment (units x unit cost).
 - `safety_stock_vs_variability.png` — safety stock vs. demand variability,
   colored by service level.
 - `product_mix_distribution.png` — count of SKUs per ABC class.
@@ -86,7 +79,10 @@ browsable in the repo):
 For a quick-reference table of every output column, see
 [`docs/SKUs.md`](docs/SKUs.md). For the full explanation of the formulas
 behind them (with worked examples), see
-[`docs/COLUMN_DEFINITIONS.md`](docs/COLUMN_DEFINITIONS.md).
+[`docs/COLUMN_DEFINITIONS.md`](docs/COLUMN_DEFINITIONS.md). For what
+every metric across the whole repo means in business terms — and the
+decision it's meant to drive — see
+[`docs/BUSINESS_GUIDE.md`](docs/BUSINESS_GUIDE.md).
 
 ### What the pipeline does
 
@@ -381,15 +377,12 @@ Two real bugs from the notebook are fixed here rather than carried over:
   was actually targeting already-popular products. Fixed to bin `0`.
 - **Multi-item association rules were silently truncated to one item.**
   `rules["antecedents"].apply(lambda x: list(x)[0])` keeps only the first
-  element of what `mlxtend` returns as a set. This is a real correctness
-  bug regardless of dataset — on the original ~700-invoice Germany.xlsx
-  slice, 436 of 930 rules (47%) had more than one item on at least one
-  side, so the notebook's approach would have shown only part of the real
-  rule (e.g. "buy A → buy C" when the actual rule was "buy A and B → buy
-  C") with no visible sign anything was dropped. Fixed by joining every
-  item into one readable string instead of indexing into the set — see
-  "Data source" above for how `MIN_SUPPORT` (and so the resulting rule
-  count and multi-item share) varies by source file.
+  element of what `mlxtend` returns as a set — a real correctness bug
+  regardless of dataset, since any rule with more than one antecedent or
+  consequent item would show only part of the real rule (e.g. "buy A →
+  buy C" when the actual rule was "buy A and B → buy C") with no visible
+  sign anything was dropped. Fixed by joining every item into one
+  readable string instead of indexing into the set.
 
 `association_rules` was also called without `min_threshold`, silently
 taking `mlxtend`'s generic default (0.8) rather than the analytically

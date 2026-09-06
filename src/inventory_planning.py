@@ -41,11 +41,11 @@ DEFAULT_SERVICE_LEVEL_MAP = {
 }
 
 
-# Columns Data.xlsx carries per-transaction that older sources (e.g. the
-# original Germany.xlsx) don't. extract_supply_parameters() averages each
-# per SKU when the column is present, and falls back independently -- one
-# field at a time, not all-or-nothing -- to the matching Config placeholder
-# when it's missing, so a source with only some of these still works.
+# Columns Data.xlsx carries per-transaction that a source might not have.
+# extract_supply_parameters() averages each per SKU when the column is
+# present, and falls back independently -- one field at a time, not
+# all-or-nothing -- to the matching Config placeholder when it's missing,
+# so a source with only some of these still works.
 SUPPLY_PARAM_COLUMNS = {
     "lead_time_days": "lead_time_days",
     "lead_time_sd_days": "lead_time_sd_days",
@@ -64,10 +64,9 @@ class Config:
     service_level_map: dict = field(default_factory=lambda: dict(DEFAULT_SERVICE_LEVEL_MAP))
     # Fallback values, used only for a SKU/source missing the matching real
     # column (lead_time_days, lead_time_sd_days, ordering_cost_per_order,
-    # holding_rate, Cost) -- not present in the original Germany.xlsx, which
-    # is why these placeholders existed in the first place. Data.xlsx
-    # supplies all but Cost's use for the newsvendor salvage/penalty inputs
-    # in advanced_analytics.py, which remain placeholders regardless.
+    # holding_rate, Cost). Data.xlsx supplies all of these except for the
+    # newsvendor salvage/penalty inputs in advanced_analytics.py, which
+    # remain placeholders regardless.
     lead_time_days: float = 12
     lead_time_sd_days: float = 2
     ordering_cost_per_order: float = 50.0
@@ -113,9 +112,9 @@ def extract_supply_parameters(clean: pd.DataFrame, config: Config) -> pd.DataFra
     constant per SKU (a handful of products show 2-6 distinct
     lead_time_days values across their rows), so each is averaged per SKU
     here rather than looked up per row. A source lacking one of these
-    columns (e.g. the original Germany.xlsx) falls back to Config's flat
-    placeholder for that field alone -- each column is independent, so a
-    source with only some of them still gets real data for the rest.
+    columns falls back to Config's flat placeholder for that field alone
+    -- each column is independent, so a source with only some of them
+    still gets real data for the rest.
 
     unit_cost feeds anything that values inventory at what it cost to buy
     rather than what it sells for (EOQ's holding-cost basis, safety-stock

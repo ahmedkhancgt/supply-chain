@@ -58,13 +58,10 @@ logger = logging.getLogger("market_basket_analysis")
 # Re-checked directly against whichever source Config.data_path points at,
 # since the right threshold depends on how many invoices/products there
 # are, not a fixed number. The notebook's original 0.009 was tuned for a
-# ~37,000-invoice dataset (mostly noise on anything smaller); 0.02 worked
-# for the original ~700-invoice/2,400-product Germany.xlsx slice but
-# produced zero rules against Data.xlsx's Germany slice (634 invoices
-# spread across 1,250 products -- a sparser catalog-to-basket ratio even
-# at a similar invoice count) -- checked directly: 0.02 -> 0 rules,
-# 0.006 -> 8, 0.004 -> 26. Re-verify this constant if the data source
-# changes again.
+# ~37,000-invoice dataset and produces mostly-noise rules on this repo's
+# ~700-invoice Germany slice; checked directly against Data.xlsx's Germany
+# slice (634 invoices, 1,250 products): 0.02 -> 0 rules, 0.006 -> 8,
+# 0.004 -> 26. Re-verify this constant if the data source changes again.
 MIN_SUPPORT = 0.006
 LIFT_MIN_THRESHOLD = 1.0
 SLOW_MOVER_QUANTILES = 8

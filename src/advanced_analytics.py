@@ -25,10 +25,8 @@ demand-pattern classification benefit from more history, not a recent
 snapshot.
 
 `resolve_unit_costs()` uses a real per-SKU `Cost` column when the source
-data has one (e.g. Data.xlsx) instead of the `COST_MARGIN` placeholder
-(cost = 40% of price) this pipeline used unconditionally before that data
-existed -- COST_MARGIN remains the fallback for a source without one (e.g.
-the original Germany.xlsx).
+data has one instead of the `COST_MARGIN` placeholder (cost = 40% of
+price) -- COST_MARGIN remains the fallback for a source without one.
 """
 
 from __future__ import annotations
@@ -72,13 +70,13 @@ MIN_RELATIVE_PRICE_SPREAD = 0.01  # (max-min)/mean price; below this the fit has
 PER_SKU_OPTIMIZATION_TIMEOUT_S = 15
 
 # Fallback only -- used for a SKU when the source data has no real Cost
-# column (e.g. the original Germany.xlsx). Matches the assumption both
-# original scripts used (cost = 40% of price) for that case. resolve_unit_
-# costs() below uses a real per-SKU Cost column instead whenever the source
-# provides one (e.g. Data.xlsx). Salvage/penalty default to 0 to match
-# Seasonal_Inventory.py's own per-SKU loop (its manual single-item example
-# used 0.7/0.4, but the actual per-SKU production loop used 0, 0) -- no
-# source used by this pipeline carries real salvage/penalty figures yet.
+# column. Matches the assumption both original scripts used (cost = 40% of
+# price) for that case. resolve_unit_costs() below uses a real per-SKU Cost
+# column instead whenever the source provides one. Salvage/penalty default
+# to 0 to match Seasonal_Inventory.py's own per-SKU loop (its manual
+# single-item example used 0.7/0.4, but the actual per-SKU production loop
+# used 0, 0) -- no source used by this pipeline carries real salvage/penalty
+# figures yet.
 COST_MARGIN = 0.4
 SALVAGE_RATE = 0.0
 PENALTY_RATE = 0.0
@@ -86,9 +84,8 @@ PENALTY_RATE = 0.0
 
 def resolve_unit_costs(clean: pd.DataFrame, cost_margin: float) -> pd.Series:
     """Per-SKU unit cost, indexed by Description: the real Cost column's
-    mean when the source has one (e.g. Data.xlsx), else cost_margin x mean
-    price -- the placeholder this pipeline used unconditionally before
-    real cost data existed (e.g. the original Germany.xlsx).
+    mean when the source has one, else cost_margin x mean price -- the
+    placeholder this pipeline uses when there's no real cost data.
     """
     if "Cost" in clean.columns:
         logger.info("Using real per-SKU 'Cost' column for unit cost")
