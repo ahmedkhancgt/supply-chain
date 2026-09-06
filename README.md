@@ -583,3 +583,75 @@ single biggest market: United Kingdom (28.9B of the 132.0B total
 potential) is 8.3 distance-units from Store 1 vs. 49.9 from Store 3 —
 proximity to the UK outweighs Store 3's attractiveness edge everywhere
 else.
+
+## Hybrid 12-week SKU forecasting
+
+`src/hybrid_forecasting.py` forecasts the next 12 weeks of demand per
+SKU by pitting two different forecasting approaches against each
+other — a classical statistical/intermittent-demand suite, and a
+machine-learning panel model — and using whichever one actually
+backtests better for that specific SKU, rather than picking one
+approach for the whole catalog.
+
+```bash
+python3 src/hybrid_forecasting.py
+```
+
+Writes `hybrid_forecast_sku_comparison.csv` (one row per SKU: demand
+classification, both sides' backtest metrics, the winning source/model,
+and the resulting 12-week forecast), `hybrid_forecast_all_candidate_metrics.csv`
+(every method tried, not just the winner), `hybrid_forecast_12w_detail.csv`
+(per SKU per future week), and `hybrid_forecast_overview.png` to `output/`.
+
+Adapted from `Forecasting_PyCaret_Hybrid.py` (uploaded separately,
+alongside reference output from a prior run). Two substitutions, both
+already used by the uploaded reference run itself — its own
+`Methodology` sheet notes "PyCaret could not be installed in this
+runtime, so the completed benchmark used the same underlying LightGBM /
+scikit-learn algorithms":
+
+- **No PyCaret.** `pycaret[full]` is a large, fast-moving dependency
+  tree this repo doesn't otherwise need — everything else here runs on
+  `requirements.txt`'s existing pandas/numpy/scipy/scikit-learn. Fits
+  `HistGradientBoostingRegressor`, `RandomForestRegressor`, and `Ridge`
+  directly instead, backtested and picked by MAE exactly like the
+  original's PyCaret-wrapped shortlist. `lightgbm` isn't installed here
+  either, so `HistGradientBoostingRegressor` stands in for it, the same
+  substitution the reference run itself made.
+- **No separate "Version 1" statistical script.** The original expects
+  pre-generated `_forecast_summary.csv`/`_forecast_detail.csv` from a
+  companion script this repo doesn't have. Rebuilt directly:
+  `Naive`, 4- and 8-week moving averages, simple exponential smoothing,
+  52-week seasonal naive, and Croston's method (classic and the
+  SBA-corrected variant) plus TSB — the same seven-method family named
+  in the uploaded reference's `Champion_Model` column, implemented from
+  their standard formulas.
+
+One real, verified issue fixed rather than carried over: the original
+computes `History_Weeks`/`Positive_Weeks`/ADI against the full 106-week
+panel for every SKU, regardless of when that SKU actually started
+selling. Checked directly against `data/Data.xlsx`: 502 of 3,080 SKUs
+(16%) don't appear until more than a year into the panel, so crediting
+them with a 106-week "history" materially overstates how lumpy their
+demand looks (a SKU selling in 3 of its own first 16 weeks gets
+ADI = 106/3 = 35.3 — "extremely lumpy" — instead of the 16/3 = 5.3 its
+own actual selling window would show). Fixed by measuring each SKU's
+history from its own first sale week onward. This is also why this
+run's demand-pattern mix differs from the uploaded reference's: Smooth
+and Erratic both come out far more common here (101 and 493 SKUs vs.
+the reference's 1 and 151) once new SKUs aren't miscounted as
+long-dormant ones.
+
+**Verified against `data/Data.xlsx`** (all countries, 3,080 SKUs,
+keyed by `StockCode` — the finer-grained identifier here, unlike the
+rest of this repo's `Description`; 3,081 codes cover 3,037 descriptions,
+with 30 descriptions spanning more than one code): the statistical side
+won for 2,161 SKUs (70%) and the ML side for 919 (30%) — close to the
+uploaded reference's own 74%/26% split, with the gap explained by the
+demand-classification fix above changing which SKUs even get a
+meaningful statistical backtest. Median statistical MAE 2.57, median ML
+MAE 3.08, median hybrid MAE 2.83 — matching the reference's own median
+AutoML MAE of 3.09 and median hybrid MAE of 2.82 almost exactly, despite
+using different underlying ML algorithms. Total hybrid 12-week forecast:
+~324,000 units (~$659,000 revenue), close to the reference's ~330,000
+units.

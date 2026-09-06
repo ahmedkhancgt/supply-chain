@@ -18,6 +18,7 @@ the module docstrings in `src/*.py`.
 7. [Weekly retail KPIs — `src/retail_kpi_metrics.py`](#7-weekly-retail-kpis)
 8. [Assortment planning — `src/assortment_planning.py`](#8-assortment-planning)
 9. [Trade-area modelling — `src/trade_area_modelling.py`](#9-trade-area-modelling)
+10. [Hybrid SKU forecasting — `src/hybrid_forecasting.py`](#10-hybrid-sku-forecasting)
 
 ---
 
@@ -290,3 +291,33 @@ can still dominate total capture if it's dramatically closer to the
 single largest market (see `README.md`'s Trade-area modelling section
 for the numbers), which is exactly the kind of trade-off this model
 exists to quantify.
+
+---
+
+## 10. Hybrid SKU forecasting
+
+**The business problem:** every forecasting method has a blind spot.
+A simple average is honest about a product that barely sells, but
+misses a real trend. A sophisticated machine-learning model can find
+subtle patterns, but needs enough regular data to learn from — and can
+be confidently wrong on a product that sells three units a month.
+**Which approach should forecast which product, and how do you know
+before you commit to an order quantity based on it?**
+
+| Term | Formula | What it means | Business use |
+|---|---|---|---|
+| **Demand classification** | ADI (how rarely a product sells) and CV² (how much its order size varies) compared against standard thresholds | Buckets every SKU into Smooth, Intermittent, Erratic, or Lumpy | Explains *why* a forecast looks the way it does — a "Lumpy" classification is a warning that no method will predict this SKU's week-to-week demand precisely, so the business decision should lean on safety stock, not forecast precision |
+| **Backtest** | run a forecasting method on data up to 12 weeks ago, compare its prediction to what actually happened | A trust score for a forecasting method, specific to one SKU | Replaces "which forecasting method is best" (a question with no universal answer) with "which method actually worked for *this* product" |
+| **Classical/intermittent-demand methods** (Naive, moving averages, exponential smoothing, Croston/TSB) | each a different, simple, well-established way of estimating a flat future demand rate from history | Reliable, explainable forecasts that don't need much data to work | The right choice for the large share of any retail catalog that sells occasionally and unpredictably — where a complex model has nothing real to learn from |
+| **Machine-learning panel model** | one shared model trained across every SKU at once, using each week's sales history, calendar position, and product category as inputs | A forecast that can pick up on patterns too subtle for a simple formula — seasonality interacting with category, a product's own sales trend, similar products' behavior | The right choice for SKUs with enough regular history that there's a real pattern worth learning, not just noise |
+| **Hybrid selection** | per SKU, whichever approach's backtest was more accurate wins | The forecast that actually goes into planning | Avoids the two failure modes of picking one method for the whole catalog: forcing a data-hungry ML model onto sparse sellers (where it just overfits noise), or forcing a flat statistical average onto high-volume regulars (where it misses a learnable trend) |
+
+**Bottom line for the business:** instead of asking "what's our
+forecasting model," this treats forecasting as 3,000+ separate small
+decisions — one per SKU — each backed by evidence (a real backtest
+against real recent demand) about which approach earns the right to
+predict it. In this repo's run, the classical suite won for 70% of SKUs
+and the ML model for the other 30%, and the 12-week forecast rolls up
+directly into a revenue and gross-profit projection, so the output
+feeds straight into the reorder and purchasing decisions the rest of
+this pipeline is built around.
