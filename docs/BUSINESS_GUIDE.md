@@ -15,6 +15,8 @@ the module docstrings in `src/*.py`.
 4. [Customer lifetime value — `src/customer_ltv_segmentation.py`](#4-customer-lifetime-value)
 5. [Market basket analysis — `src/market_basket_analysis.py`](#5-market-basket-analysis)
 6. [Supplier segmentation — `src/supplier_segmentation.py`](#6-supplier-segmentation)
+7. [Weekly retail KPIs — `src/retail_kpi_metrics.py`](#7-weekly-retail-kpis)
+8. [Assortment planning — `src/assortment_planning.py`](#8-assortment-planning)
 
 ---
 
@@ -203,3 +205,57 @@ relationship the same way" with a matrix that tells procurement exactly
 where to spend negotiating effort, where to build risk mitigation, and
 where to simply automate and move on — grounded in this business's actual
 spend and risk data, not a generic rule of thumb.
+
+---
+
+## 7. Weekly retail KPIs
+
+**The business problem:** the metrics above answer detailed
+product/customer/supplier questions. Leadership also needs a small set
+of **weekly headline numbers** to track whether the business is
+healthier or worse this week than last — the retail equivalent of a
+dashboard's top row.
+
+| Term | Formula | What it means | Business use |
+|---|---|---|---|
+| **ATV** (average transaction value) | mean revenue per invoice, per week | How much a typical order is worth | A rising ATV with flat order counts means customers are buying more per visit — useful for judging whether a promotion or bundling push is working |
+| **UPT** (units per transaction) | mean units sold per invoice, per week | How many items a typical order contains | Distinguishes "customers buying more items" from "customers buying pricier items" as the driver behind a change in ATV |
+| **ASP** (average selling price) | `ATV ÷ UPT` | The effective average price per unit across everything sold that week | A quick check on whether price realization is holding up — falling ASP with flat UPT signals discounting pressure |
+| **Conversion rate** | invoices ÷ website visitors, per week | What share of traffic actually buys | The core metric for judging site/marketing performance, not just sales volume — a traffic spike with flat conversion means the extra visitors aren't the problem, the funnel is |
+
+All four are computed **per country and combined across all of them**,
+so a category or country-level trend doesn't get lost in a single
+global average.
+
+**A caveat worth knowing for this specific dataset:** the uploaded
+footfall data covers a different calendar period (2016-2020) than the
+transaction data (2009-2011), so conversion rate here is computed
+against footfall dates *shifted* to overlap the transaction period —
+reusing the real footfall pattern, not actual historical footfall for
+those years. Treat conversion rate as an illustrative estimate for this
+dataset, not a verified historical number — see `README.md`'s "Weekly
+retail KPIs" section for the full explanation. ATV/UPT/ASP don't depend
+on footfall and aren't affected by this caveat.
+
+---
+
+## 8. Assortment planning
+
+**The business problem:** shelf space, catalog placement, and marketing
+attention are all limited — you can't feature every category equally.
+**Given a fixed amount of total space to split across the best-selling
+categories, how much should each one get to maximize profit?**
+
+| Term | Formula | What it means | Business use |
+|---|---|---|---|
+| **Assortment-breadth proxy** | a category's share of active SKUs among the top categories, per week | How much "space" a category effectively occupies, when there's no real shelf-space data to measure it directly | Lets a space-allocation model run on transaction data alone — more distinct products actively selling functions like more shelf space would in a physical store |
+| **Cross-category elasticity model** | a log-log regression: each category's weekly unit sales as a function of *every* top category's space share, not just its own | Whether growing one category's space helps, hurts, or doesn't affect another's sales | Captures cannibalization (categories competing for the same customer attention) or complementarity (categories that sell better together) — a model based only on each category's own space would miss this entirely |
+| **Average unit gross profit** | `(Price − Cost)`, averaged per unit sold, per category | How much profit one more unit sold actually contributes | Converts a sales *volume* prediction into a profit prediction — a category with high volume but thin margin can lose to a lower-volume, higher-margin one once profit is what's being optimized |
+| **Optimized assortment allocation** | space shares (each bounded to a realistic 10-70% range, summing to 100%) chosen to maximize total predicted weekly gross profit | The recommended space split across categories | A concrete, numbers-backed starting point for a category/merchandising planning conversation — not a final decision, since (as the model itself flags via R²) assortment breadth is only one of many things that drive demand |
+
+**Bottom line for the business:** this turns "which categories should we
+feature more" from a judgment call into a testable hypothesis, grounded
+in how this business's own categories have actually interacted
+historically — while being explicit (via R²) about how much of demand
+that hypothesis actually explains, so it's used as an input to a
+merchandising decision, not a substitute for one.

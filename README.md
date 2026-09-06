@@ -462,3 +462,57 @@ join instead. `footfall.xlsx` also carries no per-country breakdown
 (unlike the original's UK-specific `footfall_uk.xlsx`), so conversion
 rate is only ever computed at the "All Countries" grain — one
 undifferentiated footfall number can't be allocated across countries.
+
+## Assortment planning
+
+`src/assortment_planning.py` answers: how much catalog space should the
+top-selling categories get to maximize gross profit? It selects the top
+3 categories by historical revenue, uses each category's weekly share of
+active SKUs (among those top categories) as a proxy for assortment
+breadth — `Data.xlsx` has no physical shelf-space field — fits a
+log-log cross-category elasticity model (`log10(units sold) ~
+sum of log10(each top category's space share)`, so one category's space
+can help or hurt another's sales, not just its own), and optimizes the
+space split (each category bounded 10–70%, summing to 100%) to maximize
+predicted weekly gross profit.
+
+```bash
+python3 src/assortment_planning.py
+```
+
+Writes `assortment_planning_results.xlsx` (Category Summary, Weekly
+Space, Weekly Units, Regression, Optimization sheets) and
+`assortment_planning_allocation.png` to `output/`.
+
+Runs against **every country combined**, not one — unlike the
+inventory-planning pipeline, assortment/shelf-space allocation is a
+catalog-wide decision, and the original script (adapted from
+`Assortment_Planning_Data.py`, uploaded separately, already written
+against `Data.xlsx`'s schema) never filtered by country either.
+
+One real issue fixed: the original read `Data.xlsx` directly with
+`pd.read_excel()` and its own narrower cleaning (drop nulls in a few
+columns, positive `Quantity`/`Price`, non-negative `Cost`) instead of
+this repo's `clean_transactions()`. Checked directly: `clean_transactions()`
+removes 47 rows with `StockCode == "C2"` ("Carriage" — a shipping charge,
+not a product) that the original's cleaning let through under
+`category == "General Merchandise"`. Those rows would have counted a
+shipping fee as a "General Merchandise" sale in every downstream
+aggregate feeding the model (revenue, units, gross profit, active-SKU
+share). Rebuilt on `load_transactions()`/`clean_transactions()` instead.
+
+**Verified against `Data.xlsx`**: top 3 categories by revenue are
+General Merchandise, Storage & Organization, and Home Decor; all 104
+weeks in the data qualify for the model (every week has positive sales
+and active SKUs in all three). Regression R² came out modest (0.15,
+0.03, and 0.31 respectively) — as the original script's own
+business-interpretation notes say, assortment breadth alone explains
+only a limited part of demand, and R² should be reviewed before trusting
+the recommendation. With that caveat, the optimizer recommends shifting
+space from Storage & Organization (28.5% → 22.0%) to Home Decor (28.8% →
+35.6%), leaving General Merchandise roughly unchanged (42.8% → 42.3%),
+for a modelled **+21.8% weekly gross profit** uplift. This is a modelled
+scenario for evaluation, not an automatic buying decision — the original
+script's own notes on what a production version would need (seasonality,
+promotions, stock-outs, supplier risk, lead time, price elasticity,
+minimum display requirements, category strategic importance) still apply.
