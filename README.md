@@ -441,16 +441,24 @@ Two issues fixed rather than carried over:
   and count the number of groups instead — equivalent to, and replaced
   with, a single `nunique()`.
 
-**A real finding, not a bug**: `data/footfall.xlsx` covers 2016-01-03 to
-2020-01-26, while the transaction data covers 2009-12-01 to 2011-12-09 —
-these date ranges don't overlap at all. Checked directly: the
-`(iso_year, iso_week)` join produces **zero** matched weeks, so
-`conversion_rate` and `website_visitors` are `NaN` for every row in the
-output. This isn't something the join logic can fix — it's a genuine
-mismatch between the two source files. `website_visitors`/`conversion_rate`
-are still computed and left in the output (rather than silently dropped)
-so this is visible rather than hidden; ATV/UPT/ASP don't depend on
-footfall and are unaffected. `footfall.xlsx` also carries no per-country
-breakdown (unlike the original's UK-specific `footfall_uk.xlsx`), so
-conversion rate is only ever computed at the "All Countries" grain — one
+**A real data mismatch, handled explicitly rather than silently**:
+`data/footfall.xlsx` covers 2016-01-03 to 2020-01-26, while the
+transaction data covers 2009-12-01 to 2011-12-09 — these date ranges
+don't overlap at all, so a real-calendar-date join produces **zero**
+matched weeks. Since footfall is needed to compute `conversion_rate` at
+all, `align_footfall_to_period()` shifts every footfall date back by a
+whole number of weeks (318, landing on 2009-11-29 to 2013-12-22) so it
+brackets the transaction period — a relabeling, not new data: the same
+213 weekly footfall values in the same order, just moved onto different
+calendar dates. This gives a full 104/104 matched weeks and a populated
+`conversion_rate`, but it's **this business's real footfall pattern laid
+over 2009-2011, not actual historical footfall for those years** — no
+such data exists. Treat `conversion_rate` in the output as an
+illustrative estimate, not a verified historical metric; the output's
+`footfall_aligned` column (and a `WARNING`-level log line on every run)
+flags this. Set `KPIConfig.align_footfall_to_data=False` in
+`src/retail_kpi_metrics.py` to see the real, unmatched (`NaN`-everywhere)
+join instead. `footfall.xlsx` also carries no per-country breakdown
+(unlike the original's UK-specific `footfall_uk.xlsx`), so conversion
+rate is only ever computed at the "All Countries" grain — one
 undifferentiated footfall number can't be allocated across countries.

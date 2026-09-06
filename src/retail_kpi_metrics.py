@@ -29,16 +29,25 @@ Two real issues from the original are fixed rather than carried over:
    count away and count the number of groups instead -- equivalent to,
    and replaced with, a single `nunique()`.
 
-**A real finding, not a bug**: `data/footfall.xlsx` covers 2016-01-03 to
-2020-01-26, while `data/Data.xlsx`'s transactions cover 2009-12-01 to
-2011-12-09 -- these date ranges do not overlap at all. Checked directly:
-the `(iso_year, iso_week)` join between the two produces zero matched
-weeks, so `conversion_rate` and `website_visitors` are `NaN` for every
-row in the output. This isn't a code bug to work around -- it's a real
-mismatch between the two source files that no join logic can paper over.
-`website_visitors`/`conversion_rate` are still computed and left in the
-output (rather than silently dropped) so this is visible rather than
-hidden; ATV/UPT/ASP don't depend on footfall and are unaffected.
+**A real data mismatch, worked around explicitly rather than silently**:
+`data/footfall.xlsx` covers 2016-01-03 to 2020-01-26, while
+`data/Data.xlsx`'s transactions cover 2009-12-01 to 2011-12-09 -- these
+date ranges do not overlap at all, so joining on real calendar dates
+produces zero matched weeks for every one of them. Since footfall is
+still needed to compute `conversion_rate` at all, `align_footfall_to_period()`
+shifts every footfall date backward by a whole number of weeks (so
+Sunday-anchored dates stay Sunday-anchored) until the series brackets the
+transaction period. This is a relabeling, not a source of new data: the
+213 weekly footfall values and their week-over-week order are completely
+unchanged, only the calendar dates attached to them move. The result is
+this business's real footfall *pattern* laid over the 2009-2011 window --
+**not actual historical footfall for those years**, since no such data
+exists. `conversion_rate` computed this way is an illustrative estimate
+of what conversion might look like under a plausible footfall pattern,
+not a verified historical metric -- the output's `footfall_aligned`
+column and the run's log output both flag this. Set
+`KPIConfig.align_footfall_to_data=False` to instead see the real,
+unmatched (`NaN`-everywhere) join.
 
 `footfall.xlsx` also carries no country breakdown (a single combined
 series, unlike the original's UK-specific `footfall_uk.xlsx`), so
@@ -67,12 +76,48 @@ ALL_COUNTRIES_LABEL = "All Countries"
 class KPIConfig:
     footfall_path: Path = Path("data/footfall.xlsx")
     output_dir: Path = Path("output")
+    # Shift footfall.xlsx's dates onto the transaction data's period so
+    # conversion_rate can actually be computed -- see module docstring for
+    # exactly what this does and doesn't mean. Set False to see the real,
+    # unmatched (NaN-everywhere) join instead.
+    align_footfall_to_data: bool = True
 
 
-def load_footfall(path: Path) -> pd.DataFrame:
+def align_footfall_to_period(footfall: pd.DataFrame, period_start: pd.Timestamp) -> tuple[pd.DataFrame, int]:
+    """Shifts every date in `footfall` backward by a whole number of weeks
+    so its range brackets `period_start` onward. Shifting by a multiple of
+    7 days keeps each date on the same day of the week it started on
+    (footfall.xlsx is entirely Sundays) -- only the calendar labels move,
+    the values and their week-over-week order are untouched. Returns the
+    shifted frame and the number of weeks it was shifted by.
+    """
+    anchor_dow = footfall["date"].dt.dayofweek.iloc[0]
+    target_start = period_start - pd.Timedelta(days=(period_start.dayofweek - anchor_dow) % 7)
+    offset_weeks = (footfall["date"].min() - target_start).days // 7
+    shifted = footfall.copy()
+    shifted["date"] = shifted["date"] - pd.Timedelta(weeks=offset_weeks)
+    return shifted, offset_weeks
+
+
+def load_footfall(path: Path, align_to: pd.Timestamp | None = None) -> tuple[pd.DataFrame, bool]:
     footfall = pd.read_excel(path)
     footfall = footfall.rename(columns={"Date": "date", "footfall": "website_visitors"})
     footfall["date"] = pd.to_datetime(footfall["date"]).dt.tz_localize(None)
+    raw_start, raw_end = footfall["date"].min(), footfall["date"].max()
+
+    aligned = False
+    if align_to is not None:
+        footfall, offset_weeks = align_footfall_to_period(footfall, align_to)
+        aligned = True
+        logger.warning(
+            "Shifted footfall.xlsx dates back %d weeks (originally %s to %s -> now %s to "
+            "%s) so they overlap the transaction period. This relabels the real footfall "
+            "*pattern* onto 2009-2011 dates -- it is NOT actual historical footfall for "
+            "those years. Treat conversion_rate as an illustrative estimate, not a "
+            "verified historical metric.",
+            offset_weeks, raw_start.date(), raw_end.date(), footfall["date"].min().date(), footfall["date"].max().date(),
+        )
+
     iso = footfall["date"].dt.isocalendar()
     footfall["iso_year"] = iso["year"]
     footfall["iso_week"] = iso["week"]
@@ -81,7 +126,7 @@ def load_footfall(path: Path) -> pd.DataFrame:
         "Loaded footfall: %d weekly records, %s to %s",
         len(weekly), footfall["date"].min().date(), footfall["date"].max().date(),
     )
-    return weekly
+    return weekly, aligned
 
 
 def weekly_transaction_metrics(clean: pd.DataFrame) -> pd.DataFrame:
@@ -123,7 +168,7 @@ def weekly_transaction_metrics(clean: pd.DataFrame) -> pd.DataFrame:
     return metrics
 
 
-def add_conversion_rate(metrics: pd.DataFrame, footfall_weekly: pd.DataFrame) -> pd.DataFrame:
+def add_conversion_rate(metrics: pd.DataFrame, footfall_weekly: pd.DataFrame, footfall_aligned: bool) -> pd.DataFrame:
     """Joins footfall onto the 'All Countries' rows only -- footfall.xlsx
     has no per-country breakdown, so it can't be allocated to individual
     countries (see module docstring).
@@ -135,22 +180,19 @@ def add_conversion_rate(metrics: pd.DataFrame, footfall_weekly: pd.DataFrame) ->
 
     combined = pd.concat([overall, rest], ignore_index=True)
     combined["conversion_rate"] = combined["n_invoices"] / combined["website_visitors"]
+    combined["footfall_aligned"] = footfall_aligned
 
     matched = int(overall["website_visitors"].notna().sum())
     logger.info(
-        "Footfall join (All Countries, by iso_year/iso_week): %d of %d weeks matched", matched, len(overall),
+        "Footfall join (All Countries, by iso_year/iso_week): %d of %d weeks matched (footfall_aligned=%s)",
+        matched, len(overall), footfall_aligned,
     )
     if matched == 0:
         logger.warning(
-            "0 weeks matched -- footfall.xlsx (%s to %s) and the transaction data's "
-            "date range don't overlap at all. conversion_rate is NaN for every week "
-            "until footfall data covering the same period is supplied -- see module docstring.",
-            footfall_weekly.assign(
-                d=pd.to_datetime(footfall_weekly["iso_year"].astype(str) + "-W" + footfall_weekly["iso_week"].astype(str) + "-1", format="%G-W%V-%u")
-            )["d"].min().date(),
-            footfall_weekly.assign(
-                d=pd.to_datetime(footfall_weekly["iso_year"].astype(str) + "-W" + footfall_weekly["iso_week"].astype(str) + "-1", format="%G-W%V-%u")
-            )["d"].max().date(),
+            "0 weeks matched -- footfall.xlsx and the transaction data's date range "
+            "don't overlap. conversion_rate is NaN for every week until footfall data "
+            "covering the same period is supplied, or KPIConfig.align_footfall_to_data "
+            "is enabled -- see module docstring.",
         )
     return combined
 
@@ -160,10 +202,11 @@ def log_extremes(metrics: pd.DataFrame) -> None:
 
     if overall["conversion_rate"].notna().any():
         best_conversion = overall.loc[overall["conversion_rate"].idxmax()]
+        caveat = " (footfall dates shifted to overlap -- illustrative, not verified historical data)" if overall["footfall_aligned"].iloc[0] else ""
         logger.info(
-            "Highest conversion rate week (All Countries): %s (year %d, week %d) -- %.2f%%",
+            "Highest conversion rate week (All Countries): %s (year %d, week %d) -- %.2f%%%s",
             best_conversion["week_start"].date(), best_conversion["iso_year"], best_conversion["iso_week"],
-            best_conversion["conversion_rate"] * 100,
+            best_conversion["conversion_rate"] * 100, caveat,
         )
     else:
         logger.info("Highest conversion rate week: undefined -- conversion_rate is NaN for every week (see above)")
@@ -187,8 +230,9 @@ def run(config: Config, kpi_config: KPIConfig) -> pd.DataFrame:
     clean = clean_transactions(raw)
 
     metrics = weekly_transaction_metrics(clean)
-    footfall_weekly = load_footfall(kpi_config.footfall_path)
-    metrics = add_conversion_rate(metrics, footfall_weekly)
+    align_to = clean["date"].min() if kpi_config.align_footfall_to_data else None
+    footfall_weekly, footfall_aligned = load_footfall(kpi_config.footfall_path, align_to=align_to)
+    metrics = add_conversion_rate(metrics, footfall_weekly, footfall_aligned)
 
     log_extremes(metrics)
 
