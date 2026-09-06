@@ -25,6 +25,11 @@ every column to be present at once. `SALVAGE_RATE` and `PENALTY_RATE` in
 `advanced_analytics.py` remain flat placeholders regardless — Data.xlsx
 has no equivalent columns for either.
 
+`Data.xlsx` also carries a `Trade_Area_ID` column — a trade-area code
+1:1 with `Country` (e.g. `TA015` = Germany, `TA039` = United Kingdom, 41
+codes for 41 countries). It's a straight relabeling of `Country`, not
+independent information, and no script in this repo consumes it yet.
+
 `market_basket_analysis.py`'s `MIN_SUPPORT` (0.006) was tuned directly
 against Data.xlsx's Germany slice (634 invoices, 1,250 products) —
 checked directly (`0.02` → 0 rules, `0.006` → 8, `0.004` → 26) before
