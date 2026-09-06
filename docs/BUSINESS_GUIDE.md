@@ -17,6 +17,7 @@ the module docstrings in `src/*.py`.
 6. [Supplier segmentation — `src/supplier_segmentation.py`](#6-supplier-segmentation)
 7. [Weekly retail KPIs — `src/retail_kpi_metrics.py`](#7-weekly-retail-kpis)
 8. [Assortment planning — `src/assortment_planning.py`](#8-assortment-planning)
+9. [Trade-area modelling — `src/trade_area_modelling.py`](#9-trade-area-modelling)
 
 ---
 
@@ -259,3 +260,33 @@ in how this business's own categories have actually interacted
 historically — while being explicit (via R²) about how much of demand
 that hypothesis actually explains, so it's used as an input to a
 merchandising decision, not a substitute for one.
+
+---
+
+## 9. Trade-area modelling
+
+**The business problem:** when you're choosing between store locations,
+or trying to understand which of several existing stores a given
+market's customers are likely to shop at, you need a principled way to
+answer **"how much of this market's demand will each store actually
+capture?"** — not just "which store is closest" or "which store is
+biggest," but both at once.
+
+| Term | Formula | What it means | Business use |
+|---|---|---|---|
+| **Market potential** | households × average spend per household, per trade area | The total demand available in a market, independent of which store serves it | Sets the ceiling — a store can only ever capture a share of what's actually there to capture |
+| **Store attractiveness** | each store's characteristics (size, parking, highway access, traffic, accessibility, design, surrounding business density), each scaled 0-1 and summed | A single "pulling power" score per store, comparable across stores despite the underlying characteristics being on completely different scales (square feet vs. number of parking spaces vs. a traffic index) | Lets a bigger, better-located, more accessible store be recognized as more competitive without needing a subjective "which store is better" judgment call |
+| **Huff gravity model** | for each (market, store) pair: `attractiveness ÷ distance²`, then normalized so every store's share sums to 100% per market | The probability a given market's customers choose a given store, based on the classic retail-gravity principle that pull increases with attractiveness and drops off sharply (squared) with distance | Directly answers the question above — not a guess, but a probability grounded in both how good a store is and how far away it is |
+| **Expected capture** | capture probability × that market's total potential | The actual predicted demand (not just a %) a store should expect from a given market | Rolls up across every market to answer "how much total demand should this store expect, given where it is and how good it is compared to competitors?" — the core number behind a site-selection or capacity-planning decision |
+
+**Bottom line for the business:** this is the analytical backbone of
+site selection and store-network planning — instead of choosing a new
+location by intuition ("that area looks busy"), it quantifies exactly
+how much of a market's spending power a store at a given location, with
+given characteristics, competing against specific named competitors,
+should expect to win. In this repo's run, it also surfaces a concrete
+insight: raw attractiveness isn't destiny — a less "attractive" store
+can still dominate total capture if it's dramatically closer to the
+single largest market (see `README.md`'s Trade-area modelling section
+for the numbers), which is exactly the kind of trade-off this model
+exists to quantify.

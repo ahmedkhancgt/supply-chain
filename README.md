@@ -521,3 +521,65 @@ scenario for evaluation, not an automatic buying decision — the original
 script's own notes on what a production version would need (seasonality,
 promotions, stock-outs, supplier risk, lead time, price elasticity,
 minimum display requirements, category strategic importance) still apply.
+
+## Trade-area modelling (Huff gravity model)
+
+`src/trade_area_modelling.py` answers: given several competing stores
+and a set of markets ("trade areas"), which store is each market's
+demand likely to gravitate to, and how much should each store expect to
+capture? It implements the classic Huff gravity model: each store's
+"pull" on a trade area is its attractiveness divided by distance
+squared, and each trade area's total (synthetic) market potential splits
+across stores in proportion to each store's share of that pull.
+
+```bash
+python3 src/trade_area_modelling.py
+```
+
+Writes `trade_area_modelling_results.xlsx` (Executive_Summary,
+Huff_Detail, plus the three synthetic input sheets) and
+`trade_area_expected_capture.png` to `output/`.
+
+Uses `data/Data.xlsx`'s `Trade_Area_ID` column (added earlier — see
+"Data source" above) joined against `data/Trade_Area_Synthetic_Inputs.xlsx`
+(uploaded separately: `Trade_Area_Census` — synthetic households/
+grocery-expenditure/market-potential per trade area; `Store_Attributes`
+— 3 competing stores' size/parking/highway-access/traffic/accessibility/
+design/business-community scores; `Distance_Matrix` — each trade area's
+distance to each store). Adapted from `Trade_Area_Modelling.py` (uploaded
+separately), which already targeted this repo's `Trade_Area_ID` column.
+
+Two issues fixed rather than carried over:
+
+- **The original reads `Data.xlsx` raw, with no cleaning.** Rebuilt to
+  compute "actual" revenue/customers/invoices per trade area from
+  `clean_transactions()` instead, for the same reason every other script
+  here does. Checked directly: this changes `Actual_Revenue`/
+  `Actual_Invoices` for exactly the 4 trade areas with a `StockCode ==
+  "C2"` ("Carriage" — a shipping charge, not a product) row — Channel
+  Islands (-$100), EIRE (-$1,500, -3 invoices), France (-$110, -1
+  invoice), and United Kingdom (-$700, -2 invoices) — all under 1.5% of
+  that trade area's revenue. The other 37 trade areas are unaffected.
+- **A fragile-but-currently-correct positional join.** The original
+  assumes `Distance_Matrix`'s rows are in the same order as
+  `Trade_Area_Census`'s and indexes into it positionally, never merging
+  on a key. Checked directly: this dataset's two sheets do happen to be
+  in identical order, so the original produces the right answer here —
+  but nothing enforces that, and a reordered `Distance_Matrix` would
+  silently misassign every trade area's distances with no error raised.
+  Fixed by merging explicitly on `(Trade_Area_ID, Country)`.
+
+**Verified against the uploaded reference `Trade_Area_Modelling.xlsx`**:
+reproduces its `Huff_Detail` sheet to within ~1 part in a million (a
+rounding-precision difference in recomputed vs. pre-rounded store
+attractiveness — see the module docstring for the full explanation, it
+isn't a discrepancy in the model itself), aside from the 4 trade areas'
+`Actual_Revenue` described above. Total synthetic market potential
+across all 41 trade areas is ~132.0 billion; expected capture splits
+~86.1B / 8.3B / 37.6B across the three stores. Store 3 has the highest
+attractiveness score (6.05 vs. Store 1's 4.03), but Store 1 wins by far
+the largest total capture because it's dramatically closer to the
+single biggest market: United Kingdom (28.9B of the 132.0B total
+potential) is 8.3 distance-units from Store 1 vs. 49.9 from Store 3 —
+proximity to the UK outweighs Store 3's attractiveness edge everywhere
+else.
