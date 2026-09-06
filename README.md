@@ -401,3 +401,56 @@ the catalog-wide rule mining above — the two questions ("what do people
 buy together in general" vs. "what could I bundle with this specific
 slow-moving item") need different statistical treatment, which this
 script doesn't attempt.
+
+## Weekly retail KPIs: conversion rate, ATV, UPT, ASP
+
+`src/retail_kpi_metrics.py` computes four weekly (ISO year+week) metrics
+for every country in `data/Data.xlsx`, plus a combined "All Countries"
+total:
+
+- **ATV** (average transaction value) — mean revenue per invoice.
+- **UPT** (units per transaction) — mean units per invoice.
+- **ASP** (average selling price) — `ATV / UPT`.
+- **Conversion rate** — invoices ÷ website visitors, from `data/footfall.xlsx`.
+
+```bash
+python3 src/retail_kpi_metrics.py
+```
+
+Writes `retail_kpi_metrics.csv` to `output/`.
+
+Adapted from `section2.py` (uploaded separately), which read a
+`retail_clean.csv` this repo doesn't have and computed every metric for
+the UK only. Rebuilt on the same cleaned transaction data
+`inventory_planning.py` loads, computing every metric for **every**
+country rather than one, plus an "All Countries" combined row per week
+(the direct generalization of the original's single UK series).
+
+Two issues fixed rather than carried over:
+
+- **Joining on raw resampled calendar dates.** The original computes two
+  independently-`resample('W')`-d weekly series and merges them on the
+  resulting `date` column — fragile, since two series resampled from
+  different starting dates can anchor "week" boundaries on different
+  days and silently fail to join even when their data genuinely
+  overlaps, with nothing to explain why the result came back all `NaN`.
+  Fixed by keying both sides on `(iso_year, iso_week)` instead.
+- **A convoluted invoice count**:
+  `groupby(['date','Invoice']).agg(n_invoices=('Invoice','count')).reset_index().groupby('date').agg(n_invoices=('Invoice','count'))`
+  counts rows per `(date, Invoice)` group only to throw that count away
+  and count the number of groups instead — equivalent to, and replaced
+  with, a single `nunique()`.
+
+**A real finding, not a bug**: `data/footfall.xlsx` covers 2016-01-03 to
+2020-01-26, while the transaction data covers 2009-12-01 to 2011-12-09 —
+these date ranges don't overlap at all. Checked directly: the
+`(iso_year, iso_week)` join produces **zero** matched weeks, so
+`conversion_rate` and `website_visitors` are `NaN` for every row in the
+output. This isn't something the join logic can fix — it's a genuine
+mismatch between the two source files. `website_visitors`/`conversion_rate`
+are still computed and left in the output (rather than silently dropped)
+so this is visible rather than hidden; ATV/UPT/ASP don't depend on
+footfall and are unaffected. `footfall.xlsx` also carries no per-country
+breakdown (unlike the original's UK-specific `footfall_uk.xlsx`), so
+conversion rate is only ever computed at the "All Countries" grain — one
+undifferentiated footfall number can't be allocated across countries.
