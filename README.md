@@ -26,16 +26,14 @@ every column to be present at once. `SALVAGE_RATE` and `PENALTY_RATE` in
 has no equivalent columns for either.
 
 `Data.xlsx` also carries a `Trade_Area_ID` column — a trade-area code
-1:1 with `Country` (e.g. `TA015` = Germany, `TA039` = United Kingdom, 41
-codes for 41 countries). It's a straight relabeling of `Country`, not
-independent information, and no script in this repo consumes it yet.
+1:1 with `Country` (41 codes for 41 countries), used by
+`trade_area_modelling.py`.
 
 `market_basket_analysis.py`'s `MIN_SUPPORT` (0.006) was tuned directly
-against Data.xlsx's Germany slice (634 invoices, 1,250 products) —
-checked directly (`0.02` → 0 rules, `0.006` → 8, `0.004` → 26) before
-landing on `0.006`. Re-check this constant if the data source changes;
-it isn't derivable from anything else in the file the way the cost/lead-time
-columns are.
+against this data's Germany slice (634 invoices, 1,250 products) rather
+than reused from the source notebook's default — re-check this constant
+if the data source changes, since it isn't derivable from anything else
+in the file the way the cost/lead-time columns are.
 
 ## Inventory planning pipeline
 
@@ -136,21 +134,18 @@ Writes `policy_simulation_top5.csv`, `policy_simulation_fill_rate.png`,
 and `policy_simulation_inventory_level.png` to `output/`.
 
 These functions are flagged deprecated by `inventorize` in favour of newer
-names (`sim_Q_max`, `sim_base_stock_policy`, `sim_min_max`,
-`periodic_policy`) — kept as-is here since they're correct for this
-purpose, just superseded. They also share a minor bug: `Item_fill_rate`'s
+names, kept as-is here since they're correct for this purpose, just
+superseded. They also share a minor library bug: `Item_fill_rate`'s
 denominator drops the last simulated period's demand, slightly inflating
-the reported fill rate — not significant enough to justify reimplementing
-the simulation loop for a 5-SKU backtest, but worth knowing if you lean on
-that number.
+the reported fill rate — worth knowing if you lean on that number.
 
 **A note on what "daily demand" means here**: the main pipeline's
 `average` column is the mean demand on days a product *actually sold* —
 correct for its formulas, but not the same thing as a true daily average.
-Several of the top SKUs by safety-stock investment turned out to have sold
-on only 1-2 days across the whole analysis window, so `daily_series()` in
-this script computes its own zero-filled calendar-day mean/sd for the
-simulation rather than reusing the pipeline's `average`/`sd`.
+Several of the top SKUs by safety-stock investment sold on only 1-2 days
+across the whole analysis window, so `daily_series()` in this script
+computes its own zero-filled calendar-day mean/sd for the simulation
+instead of reusing the pipeline's `average`/`sd`.
 
 ## Advanced analytics: demand pattern, pricing, single-period ordering
 
@@ -177,55 +172,41 @@ python3 src/advanced_analytics.py
 4. **Single-period ("newsvendor") ordering** (`single_period_ordering.csv`)
    — `inventorize.MPN_singleperiod` per SKU, using yearly demand totals.
 
-This was adapted from four uploaded scripts (`product_segmentation.py`,
-`Behaviour_Pricing.py`, `Seasonal_Inventory.py`, and a small notebook),
-fixing several bugs found by actually running them rather than carrying
-them over:
+Adapted from four uploaded scripts, fixing several bugs found by actually
+running them:
 
-- **`.dt.week`** (`Behaviour_Pricing.py`) was removed in pandas ≥2.0 and
-  crashes immediately — replaced with an ISO week key via
-  `.dt.strftime('%G-W%V')`.
-- **ADI's day-gap calculation** (`product_segmentation.py`) converted a
-  `Timedelta` to a day count by string-replacing
-  `"days 00:00:00.000000000"` out of its text representation — this no
-  longer matches pandas' current `Timedelta` formatting and silently
-  produced all-`NaN` results. Replaced with `.dt.days`.
-- **`single_product_optimization`'s `cost` parameter** (`Behaviour_Pricing.py`)
-  was passed positionally, where it actually landed in the `degree`
-  parameter instead (`cost` is the function's 6th argument). Verified this
-  crashes for a float cost and silently zeroes out cost for an int one.
-  Always called here with `cost=` as an explicit keyword.
-- **A non-converging fit, not a clean error**: one candidate SKU had an
-  almost perfectly constant price (`1.6499999999999997`–`1.65`, floating-point
-  noise only) — fitting a logit curve to it sent `scipy`'s optimizer into a
-  multi-minute non-converging loop instead of failing fast. Candidates are
-  now pre-filtered by `MIN_RELATIVE_PRICE_SPREAD`, with a
-  `PER_SKU_OPTIMIZATION_TIMEOUT_S` timeout as a second line of defense.
-- **`MPN_singleperiod` returns `NaN`** for a SKU with exactly zero demand
-  variance (both years sold identically) the same way it does for missing
-  variance — this produced 113 all-`NaN` output rows before being folded
-  into the same 10%-of-demand placeholder already used for the
-  one-year-of-history case.
-- `single_product_optimization`'s `current_price`/`optimum_linear`/`optimum_logit`
-  fields are pre-formatted sentences (e.g. `"optimum logit revenue price is
-  [18.19]for Mango"`), not plain numbers — parsed back out with a small
-  regex helper instead of writing the sentence into a CSV column.
+- `.dt.week` was removed in pandas ≥2.0 and crashed immediately —
+  replaced with an ISO week key.
+- The ADI day-gap calculation parsed a `Timedelta`'s string
+  representation, which no longer matches pandas' current format and
+  silently produced all-`NaN` results — replaced with `.dt.days`.
+- `single_product_optimization`'s `cost` argument was passed
+  positionally and landed in the wrong parameter — now always passed as
+  an explicit keyword.
+- One near-constant-price SKU sent the price-optimization fit into a
+  multi-minute non-converging loop instead of failing fast — candidates
+  are now pre-filtered by minimum price spread, with a timeout as backup.
+- `MPN_singleperiod` returned `NaN` for any SKU with exactly zero demand
+  variance — folded into the same demand-based placeholder already used
+  for the one-year-of-history case.
+- `single_product_optimization`'s price fields come back as pre-formatted
+  sentences, not numbers — parsed out with a small regex helper instead
+  of writing the sentence into a CSV column.
 
 Unit cost for all three techniques comes from `resolve_unit_costs()`: a
-real per-SKU `Cost` column when the source has one (`Data.xlsx` does), or
-`COST_MARGIN * price` otherwise (see "Data source" above). `SALVAGE_RATE`
-and `PENALTY_RATE` remain flat placeholders in the same category as
-`inventory_planning.Config`'s `ordering_cost_per_order`/`holding_rate` —
-not in the transaction data, defaulted to match what the original scripts
-assumed (see the comments at the top of the file).
+real per-SKU `Cost` column when the source has one, or `COST_MARGIN *
+price` otherwise. `SALVAGE_RATE` and `PENALTY_RATE` remain flat
+placeholders in the same category as `inventory_planning.Config`'s
+`ordering_cost_per_order`/`holding_rate` — not in the transaction data,
+defaulted to match what the original scripts assumed.
 
 **Why so few SKUs get a price elasticity or optimization result**: most
-Germany SKUs barely change price at all over the history — of 1,250 SKUs
-in Data.xlsx's Germany slice, only 6 had enough weeks of real price
-variation for `compute_price_elasticity`, and only 5 (the top sellers
-among those) get the full `single_product_optimization` treatment. This
-mirrors the demand-sparsity finding from the policy backtest above — the
-data supports fewer of these advanced techniques than the source scripts
+Germany SKUs barely change price at all over the history — of 1,250 SKUs,
+only 6 had enough weeks of real price variation for
+`compute_price_elasticity`, and only 5 (the top sellers among those) get
+the full `single_product_optimization` treatment. This mirrors the
+demand-sparsity finding from the policy backtest above — the data
+supports fewer of these advanced techniques than the source scripts
 assumed.
 
 ## Customer lifetime value segmentation
@@ -233,8 +214,7 @@ assumed.
 `src/customer_ltv_segmentation.py` computes RFM (recency, frequency,
 monetary) scores per customer, clusters them into Low/Mid/High lifetime
 value segments, and trains a classifier to predict segment from RFM
-behavior. Adapted from `cltv.py`/`cltv_assignment.py` (uploaded
-separately) — two near-identical scripts that both assumed an
+behavior. Adapted from two uploaded scripts that both assumed an
 already-computed RFM file this repo doesn't have, so `compute_rfm()`
 reconstructs it directly from the same cleaned transaction data
 `inventory_planning.py` already loads.
@@ -247,38 +227,19 @@ Writes `customer_rfm_segments.csv`, `ltv_segment_confusion.csv`,
 `ltv_outlier_removal.png`, `ltv_segment_means.png`, and
 `ltv_feature_importance.png` to `output/`.
 
-Three real, verified bugs from the originals are fixed here rather than
-carried over:
+Real bugs fixed rather than carried over:
 
-- **A guaranteed crash**: `len(ltv)-len(outliers_removed)` is called one
-  line *before* `outliers_removed` is defined — `NameError` on any
-  top-to-bottom run.
-- **An RFM scoring inversion applied to the wrong columns**: both
-  originals map `{'1':'3','3':'1','2':'2'}` onto recency, frequency,
-  *and* monetary alike. That flip only makes sense for recency (low
-  recency = best, so its raw tertile order needs reversing) — frequency
-  and monetary already increase with customer value, so applying the
-  same flip inverts a scale that didn't need it. Fixed by qcut-ing
-  recency with descending labels and frequency/monetary with ascending
-  labels directly, instead of qcut-then-flip.
-- **The consequential one — KMeans cluster IDs assumed sorted by value**:
-  nothing guarantees `KMeans(...).fit_predict()`'s cluster `0` has the
-  lowest mean LTV. Verified empirically (5 reseeds of a synthetic
-  3-cluster LTV distribution): the cluster-id-to-mean order came out
-  already sorted in only 1 of 5 runs. The originals' hardcoded
-  `{'0':'Low_ltv','1':'Mid_ltv','2':'High_ltv'}` would silently mislabel
-  customers — e.g. calling your highest-spending cluster "Low_ltv" — on
-  an unlucky seed, with nothing in the code to catch it. Fixed by ranking
+- A guaranteed crash — a variable was referenced one line before it was
+  defined.
+- An RFM scoring inversion applied to all three columns instead of just
+  recency, which is the only one that needs its raw order reversed.
+- The consequential one: KMeans cluster IDs aren't guaranteed to sort by
+  value, but the originals hardcoded `0=Low`, `1=Mid`, `2=High` anyway —
+  verified this mislabels customers on an unlucky seed. Fixed by ranking
   clusters by their actual mean LTV before labeling.
-
-Also fixed: no `random_state` anywhere (`KMeans`, the CV splitters, the
-searches) — results didn't reproduce run to run; and the final
-`groupby(['Actual','Prediction'])['Actual','Prediction']` — tuple-style
-column selection on a `GroupBy`, which raises
-`ValueError: Cannot subset columns with a tuple with more than one
-element` on current pandas — fixed to list-style selection. A train/test
-split was also added before the final evaluation; the originals predicted
-on the same data they'd fit on, which overstates real accuracy.
+- No `random_state` anywhere, so results didn't reproduce run to run; a
+  pandas `GroupBy` tuple-column-selection that raises on current pandas;
+  and no train/test split before evaluation, which overstated accuracy.
 
 **A caveat worth knowing, not a bug**: `monetary` (an RFM feature the
 classifier trains on) is the same value as `ltv` (what `KMeans` actually
@@ -313,45 +274,28 @@ other scripts — it loads every country in `data/Data.xlsx` regardless of
 python3 src/supplier_segmentation.py
 ```
 
-Adapted from `ABC_SUPPLIER.py` (uploaded separately), which read
-`online_retail2.csv` and a separate `supplier_data.csv` this repo
-doesn't have — rebuilt on the same cleaned transaction data
-`inventory_planning.py` loads, since Data.xlsx already carries the
-risk-factor columns and `Cost` the original needed a second file for.
-The single-country ABC/multi-criteria-ABC analysis at the top of the
-original script duplicates `classify_products()` and isn't reimplemented
-here.
+Adapted from an uploaded script that read two files this repo doesn't
+have — rebuilt on the cleaned transaction data `inventory_planning.py`
+loads, since Data.xlsx already carries the risk-factor and cost columns
+the original needed a second file for. The single-country ABC analysis
+at the top of the original duplicates `classify_products()` and isn't
+reimplemented here.
 
-Several real issues from the original are fixed rather than carried over:
+Real issues fixed rather than carried over:
 
-- **`retail.dropna()` drops far more than intended** — it removes any
-  row with a null in *any* column, not just ones that matter (e.g. a
-  missing Customer ID for a guest checkout). Uses `clean_transactions()`
-  instead, which only requires the columns that make a row a usable
-  transaction. Also fixes the original's missing cancellation filter
-  (invoices starting with `"C"`), which `clean_transactions()` already
-  handles.
-- **Row-by-row category assignment**:
-  `for i in range(supplier.shape[0]): supplier.loc[i,'category'] = category(...)`
-  is O(n) individual writes, and only works because `supplier` still has
-  an untouched `0..n-1` `RangeIndex` — it would silently write to the
-  wrong rows (or raise `KeyError`) the moment any filtering happened
-  upstream. Replaced with a vectorized `np.select`.
-- **Hardcoded value/risk thresholds sized to a file this repo doesn't
-  have**: the original's quadrant function splits on `value >= 3,000,000`
-  and `risk_index >= 1`. Checked directly against Data.xlsx: per-SKU
-  procurement spend ranges $22-$7,500 (median $333) — nothing ever
-  reaches 3,000,000, so every SKU would land in Critical or Routine and
-  the matrix would never produce a Strategic or Leverage result. Fixed
-  with the standard Kraljic-matrix approach instead: split at the
-  *median* of each axis, computed from this data (verified: an even
-  ~950/950/570/570 split across the four quadrants).
-- **Ambiguous `value = price * Quantity`**: the original's generic
-  `price` column could mean either the supplier's cost or the
-  customer-facing selling price — Data.xlsx has both. Since this is a
-  procurement-risk matrix (how much you pay suppliers, not what you
-  resell for), `value` here is `Cost x Quantity`, not `Price x Quantity`
-  (Revenue, already used for selling-side value elsewhere in this repo).
+- The original's `dropna()` removed any row with a null in *any* column
+  (e.g. a missing Customer ID for a guest checkout) and never filtered
+  cancelled invoices — both handled correctly by `clean_transactions()`.
+- A row-by-row category assignment loop that only worked by luck of an
+  untouched index — replaced with a vectorized `np.select`.
+- Hardcoded value/risk thresholds (`value >= 3,000,000`) sized to a file
+  this repo doesn't have — against this data, procurement spend never
+  gets close, so every SKU would land in the same two quadrants. Fixed
+  with the standard Kraljic-matrix approach: split at the median of each
+  axis, computed from the real data.
+- An ambiguous `value = price * Quantity` — resolved to `Cost x Quantity`
+  specifically, since this is a procurement-risk matrix (what you pay
+  suppliers), not a selling-side one.
 
 ## Market basket analysis
 
@@ -359,9 +303,9 @@ Several real issues from the original are fixed rather than carried over:
 (via `mlxtend`'s Apriori algorithm) and cross-references the resulting
 rules against genuinely slow-moving products, to surface potential
 cross-sell pairings for stock that isn't selling on its own. Adapted from
-`MarketBasketanalysis_1.ipynb` (uploaded separately), which assumed a
-pre-existing `retail_clean.csv` this repo doesn't have — rebuilt on the
-same cleaned Germany transaction data `inventory_planning.py` loads.
+an uploaded notebook that assumed a pre-existing cleaned CSV this repo
+doesn't have — rebuilt on the same cleaned Germany transaction data
+`inventory_planning.py` loads.
 
 ```bash
 python3 src/market_basket_analysis.py
@@ -371,41 +315,29 @@ Writes `basket_association_rules.csv`, `basket_slow_mover_cross_sell.csv`,
 `basket_slow_movers.csv`, and three charts (`basket_order_size.png`,
 `basket_top_sellers.png`, `basket_rules_scatter.png`) to `output/`.
 
-Two real bugs from the notebook are fixed here rather than carried over:
+Real bugs fixed rather than carried over:
 
 - **"slow_moving" was actually the second-fastest-moving octile.**
-  `pd.qcut(total_quantity_sold, 8, labels=False)` labels bins ascending —
-  0 is the lowest-quantity octile, 7 the highest — and the notebook
-  filtered `cut==6`. Checked directly against this data: bin 6 covers
-  products that sold 98–188 units total, solidly mid-to-high volume. A
-  step meant to find cross-sell opportunities for overstocked slow movers
-  was actually targeting already-popular products. Fixed to bin `0`.
+  `pd.qcut` labels bins ascending (0 = lowest quantity), and the notebook
+  filtered the wrong bin — actually mid-to-high-volume products. A step
+  meant to find cross-sell opportunities for overstocked slow movers was
+  targeting already-popular products instead. Fixed to the correct bin.
 - **Multi-item association rules were silently truncated to one item.**
-  `rules["antecedents"].apply(lambda x: list(x)[0])` keeps only the first
-  element of what `mlxtend` returns as a set — a real correctness bug
-  regardless of dataset, since any rule with more than one antecedent or
-  consequent item would show only part of the real rule (e.g. "buy A →
-  buy C" when the actual rule was "buy A and B → buy C") with no visible
-  sign anything was dropped. Fixed by joining every item into one
-  readable string instead of indexing into the set.
-
-`association_rules` was also called without `min_threshold`, silently
-taking `mlxtend`'s generic default (0.8) rather than the analytically
-meaningful cutoff for lift specifically (only lift `> 1.0` is a positive
-association) — made explicit here as `LIFT_MIN_THRESHOLD`.
+  Indexing into `mlxtend`'s result set kept only the first item of any
+  multi-item rule, with no sign anything was dropped. Fixed by joining
+  every item into one readable string.
+- `association_rules` was also called without `min_threshold`, silently
+  taking `mlxtend`'s generic default rather than the analytically
+  meaningful cutoff for lift specifically (only `> 1.0` is a positive
+  association) — made explicit here as `LIFT_MIN_THRESHOLD`.
 
 **Real finding, not a bug**: at `MIN_SUPPORT`, zero rules involve a
-slow-moving product on either side, in this dataset (Data.xlsx's Germany
-slice: 283 slow movers, bottom octile, 1–6 units sold total, against 8
-rules total). That's expected, not a mistake in the code — a product has
-to appear in a minimum share of invoices to be included in any rule at
-all, and slow movers are by definition too rare to clear that bar.
-Finding real cross-sell pairings for them would need a support threshold
-scoped specifically to those products, not the same threshold used for
-the catalog-wide rule mining above — the two questions ("what do people
-buy together in general" vs. "what could I bundle with this specific
-slow-moving item") need different statistical treatment, which this
-script doesn't attempt.
+slow-moving product on either side, in this dataset. That's expected —
+a product has to appear in a minimum share of invoices to be included in
+any rule at all, and slow movers are by definition too rare to clear
+that bar. Finding real cross-sell pairings for them would need a support
+threshold scoped specifically to those products, which this script
+doesn't attempt.
 
 ## Weekly retail KPIs: conversion rate, ATV, UPT, ASP
 
@@ -424,49 +356,34 @@ python3 src/retail_kpi_metrics.py
 
 Writes `retail_kpi_metrics.csv` to `output/`.
 
-Adapted from `section2.py` (uploaded separately), which read a
-`retail_clean.csv` this repo doesn't have and computed every metric for
-the UK only. Rebuilt on the same cleaned transaction data
-`inventory_planning.py` loads, computing every metric for **every**
-country rather than one, plus an "All Countries" combined row per week
-(the direct generalization of the original's single UK series).
+Adapted from an uploaded script that read a cleaned CSV this repo
+doesn't have and computed every metric for the UK only. Rebuilt on the
+same cleaned transaction data `inventory_planning.py` loads, computing
+every metric for **every** country rather than one, plus an "All
+Countries" combined row per week.
 
-Two issues fixed rather than carried over:
-
-- **Joining on raw resampled calendar dates.** The original computes two
-  independently-`resample('W')`-d weekly series and merges them on the
-  resulting `date` column — fragile, since two series resampled from
-  different starting dates can anchor "week" boundaries on different
-  days and silently fail to join even when their data genuinely
-  overlaps, with nothing to explain why the result came back all `NaN`.
-  Fixed by keying both sides on `(iso_year, iso_week)` instead.
-- **A convoluted invoice count**:
-  `groupby(['date','Invoice']).agg(n_invoices=('Invoice','count')).reset_index().groupby('date').agg(n_invoices=('Invoice','count'))`
-  counts rows per `(date, Invoice)` group only to throw that count away
-  and count the number of groups instead — equivalent to, and replaced
-  with, a single `nunique()`.
+Issues fixed rather than carried over: the original joined two
+independently-resampled weekly series on raw calendar dates, which is
+fragile — two series resampled from different starting dates can anchor
+"week" boundaries on different days and silently fail to join even when
+their data genuinely overlaps. Fixed by keying both sides on
+`(iso_year, iso_week)` instead. A convoluted invoice count was also
+simplified to a single `nunique()`.
 
 **A real data mismatch, handled explicitly rather than silently**:
-`data/footfall.xlsx` covers 2016-01-03 to 2020-01-26, while the
-transaction data covers 2009-12-01 to 2011-12-09 — these date ranges
-don't overlap at all, so a real-calendar-date join produces **zero**
-matched weeks. Since footfall is needed to compute `conversion_rate` at
-all, `align_footfall_to_period()` shifts every footfall date back by a
-whole number of weeks (318, landing on 2009-11-29 to 2013-12-22) so it
-brackets the transaction period — a relabeling, not new data: the same
-213 weekly footfall values in the same order, just moved onto different
-calendar dates. This gives a full 104/104 matched weeks and a populated
-`conversion_rate`, but it's **this business's real footfall pattern laid
-over 2009-2011, not actual historical footfall for those years** — no
-such data exists. Treat `conversion_rate` in the output as an
-illustrative estimate, not a verified historical metric; the output's
-`footfall_aligned` column (and a `WARNING`-level log line on every run)
-flags this. Set `KPIConfig.align_footfall_to_data=False` in
-`src/retail_kpi_metrics.py` to see the real, unmatched (`NaN`-everywhere)
-join instead. `footfall.xlsx` also carries no per-country breakdown
-(unlike the original's UK-specific `footfall_uk.xlsx`), so conversion
-rate is only ever computed at the "All Countries" grain — one
-undifferentiated footfall number can't be allocated across countries.
+`data/footfall.xlsx` covers 2016-2020, while the transaction data covers
+2009-2011 — these date ranges don't overlap, so a real-calendar-date join
+produces zero matched weeks. Since footfall is needed to compute
+`conversion_rate` at all, `align_footfall_to_period()` shifts every
+footfall date back by a whole number of weeks so it brackets the
+transaction period — a relabeling, not new data: the same weekly values
+in the same order, just moved onto different calendar dates. Treat
+`conversion_rate` in the output as an illustrative estimate, not a
+verified historical metric; the output's `footfall_aligned` column flags
+this. Set `KPIConfig.align_footfall_to_data=False` to see the real,
+unmatched (`NaN`-everywhere) join instead. `footfall.xlsx` also carries
+no per-country breakdown, so conversion rate is only ever computed at
+the "All Countries" grain.
 
 ## Assortment planning
 
@@ -475,10 +392,9 @@ top-selling categories get to maximize gross profit? It selects the top
 3 categories by historical revenue, uses each category's weekly share of
 active SKUs (among those top categories) as a proxy for assortment
 breadth — `Data.xlsx` has no physical shelf-space field — fits a
-log-log cross-category elasticity model (`log10(units sold) ~
-sum of log10(each top category's space share)`, so one category's space
-can help or hurt another's sales, not just its own), and optimizes the
-space split (each category bounded 10–70%, summing to 100%) to maximize
+log-log cross-category elasticity model (so one category's space can
+help or hurt another's sales, not just its own), and optimizes the space
+split (each category bounded 10–70%, summing to 100%) to maximize
 predicted weekly gross profit.
 
 ```bash
@@ -489,38 +405,27 @@ Writes `assortment_planning_results.xlsx` (Category Summary, Weekly
 Space, Weekly Units, Regression, Optimization sheets) and
 `assortment_planning_allocation.png` to `output/`.
 
-Runs against **every country combined**, not one — unlike the
-inventory-planning pipeline, assortment/shelf-space allocation is a
-catalog-wide decision, and the original script (adapted from
-`Assortment_Planning_Data.py`, uploaded separately, already written
-against `Data.xlsx`'s schema) never filtered by country either.
+Runs against **every country combined**, not one — assortment/shelf-space
+allocation is a catalog-wide decision, and the original script never
+filtered by country either.
 
-One real issue fixed: the original read `Data.xlsx` directly with
-`pd.read_excel()` and its own narrower cleaning (drop nulls in a few
-columns, positive `Quantity`/`Price`, non-negative `Cost`) instead of
-this repo's `clean_transactions()`. Checked directly: `clean_transactions()`
-removes 47 rows with `StockCode == "C2"` ("Carriage" — a shipping charge,
-not a product) that the original's cleaning let through under
-`category == "General Merchandise"`. Those rows would have counted a
-shipping fee as a "General Merchandise" sale in every downstream
-aggregate feeding the model (revenue, units, gross profit, active-SKU
-share). Rebuilt on `load_transactions()`/`clean_transactions()` instead.
+One real issue fixed: the original read `Data.xlsx` directly with its
+own narrower cleaning instead of this repo's `clean_transactions()`,
+which additionally excludes non-product line items (e.g. a "Carriage"
+shipping-charge row that was being counted as a product sale in every
+downstream aggregate).
 
 **Verified against `Data.xlsx`**: top 3 categories by revenue are
-General Merchandise, Storage & Organization, and Home Decor; all 104
-weeks in the data qualify for the model (every week has positive sales
-and active SKUs in all three). Regression R² came out modest (0.15,
-0.03, and 0.31 respectively) — as the original script's own
-business-interpretation notes say, assortment breadth alone explains
-only a limited part of demand, and R² should be reviewed before trusting
-the recommendation. With that caveat, the optimizer recommends shifting
-space from Storage & Organization (28.5% → 22.0%) to Home Decor (28.8% →
-35.6%), leaving General Merchandise roughly unchanged (42.8% → 42.3%),
-for a modelled **+21.8% weekly gross profit** uplift. This is a modelled
-scenario for evaluation, not an automatic buying decision — the original
-script's own notes on what a production version would need (seasonality,
-promotions, stock-outs, supplier risk, lead time, price elasticity,
-minimum display requirements, category strategic importance) still apply.
+General Merchandise, Storage & Organization, and Home Decor. Regression
+R² came out modest (0.15, 0.03, and 0.31 respectively) — assortment
+breadth alone explains only a limited part of demand, and R² should be
+reviewed before trusting the recommendation. With that caveat, the
+optimizer recommends shifting space from Storage & Organization (28.5% →
+22.0%) to Home Decor (28.8% → 35.6%), for a modelled **+21.8% weekly
+gross profit** uplift. This is a modelled scenario for evaluation, not
+an automatic buying decision — a production version would still need
+seasonality, promotions, stock-outs, supplier risk, and other real-world
+factors this model doesn't capture.
 
 ## Trade-area modelling (Huff gravity model)
 
@@ -540,49 +445,32 @@ Writes `trade_area_modelling_results.xlsx` (Executive_Summary,
 Huff_Detail, plus the three synthetic input sheets) and
 `trade_area_expected_capture.png` to `output/`.
 
-Uses `data/Data.xlsx`'s `Trade_Area_ID` column (added earlier — see
-"Data source" above) joined against `data/Trade_Area_Synthetic_Inputs.xlsx`
-(uploaded separately: `Trade_Area_Census` — synthetic households/
-grocery-expenditure/market-potential per trade area; `Store_Attributes`
-— 3 competing stores' size/parking/highway-access/traffic/accessibility/
-design/business-community scores; `Distance_Matrix` — each trade area's
-distance to each store). Adapted from `Trade_Area_Modelling.py` (uploaded
-separately), which already targeted this repo's `Trade_Area_ID` column.
+Uses `data/Data.xlsx`'s `Trade_Area_ID` column joined against
+`data/Trade_Area_Synthetic_Inputs.xlsx` (uploaded separately:
+`Trade_Area_Census` — synthetic households/expenditure/market-potential
+per trade area; `Store_Attributes` — 3 competing stores' physical/access
+characteristics; `Distance_Matrix` — each trade area's distance to each
+store).
 
-Two issues fixed rather than carried over:
+Issues fixed rather than carried over: the original read `Data.xlsx` raw
+with no cleaning, so "actual" revenue/invoices per trade area now come
+from `clean_transactions()` instead — this changes the numbers for the 4
+trade areas with a shipping-charge row, all by under 1.5% of that trade
+area's revenue. The original also joined `Distance_Matrix` to
+`Trade_Area_Census` positionally rather than on a key — it happened to
+produce the right answer here because the two sheets are already in the
+same order, but a reordered file would have silently misassigned every
+trade area's distances. Fixed by merging explicitly on
+`(Trade_Area_ID, Country)`.
 
-- **The original reads `Data.xlsx` raw, with no cleaning.** Rebuilt to
-  compute "actual" revenue/customers/invoices per trade area from
-  `clean_transactions()` instead, for the same reason every other script
-  here does. Checked directly: this changes `Actual_Revenue`/
-  `Actual_Invoices` for exactly the 4 trade areas with a `StockCode ==
-  "C2"` ("Carriage" — a shipping charge, not a product) row — Channel
-  Islands (-$100), EIRE (-$1,500, -3 invoices), France (-$110, -1
-  invoice), and United Kingdom (-$700, -2 invoices) — all under 1.5% of
-  that trade area's revenue. The other 37 trade areas are unaffected.
-- **A fragile-but-currently-correct positional join.** The original
-  assumes `Distance_Matrix`'s rows are in the same order as
-  `Trade_Area_Census`'s and indexes into it positionally, never merging
-  on a key. Checked directly: this dataset's two sheets do happen to be
-  in identical order, so the original produces the right answer here —
-  but nothing enforces that, and a reordered `Distance_Matrix` would
-  silently misassign every trade area's distances with no error raised.
-  Fixed by merging explicitly on `(Trade_Area_ID, Country)`.
-
-**Verified against the uploaded reference `Trade_Area_Modelling.xlsx`**:
-reproduces its `Huff_Detail` sheet to within ~1 part in a million (a
-rounding-precision difference in recomputed vs. pre-rounded store
-attractiveness — see the module docstring for the full explanation, it
-isn't a discrepancy in the model itself), aside from the 4 trade areas'
-`Actual_Revenue` described above. Total synthetic market potential
-across all 41 trade areas is ~132.0 billion; expected capture splits
-~86.1B / 8.3B / 37.6B across the three stores. Store 3 has the highest
-attractiveness score (6.05 vs. Store 1's 4.03), but Store 1 wins by far
-the largest total capture because it's dramatically closer to the
-single biggest market: United Kingdom (28.9B of the 132.0B total
-potential) is 8.3 distance-units from Store 1 vs. 49.9 from Store 3 —
-proximity to the UK outweighs Store 3's attractiveness edge everywhere
-else.
+**Verified against the uploaded reference output**: reproduces it almost
+exactly (a sub-0.0001% gap traced to a rounding-precision difference,
+not a modeling error). Total synthetic market potential across all 41
+trade areas is ~132.0 billion; expected capture splits ~86.1B / 8.3B /
+37.6B across the three stores. Store 3 has the highest attractiveness
+score, but Store 1 wins by far the largest total capture because it's
+dramatically closer to the single biggest market (the UK) — proximity
+outweighs Store 3's attractiveness edge everywhere else.
 
 ## Hybrid 12-week SKU forecasting
 
@@ -603,55 +491,34 @@ and the resulting 12-week forecast), `hybrid_forecast_all_candidate_metrics.csv`
 (every method tried, not just the winner), `hybrid_forecast_12w_detail.csv`
 (per SKU per future week), and `hybrid_forecast_overview.png` to `output/`.
 
-Adapted from `Forecasting_PyCaret_Hybrid.py` (uploaded separately,
-alongside reference output from a prior run). Two substitutions, both
-already used by the uploaded reference run itself — its own
-`Methodology` sheet notes "PyCaret could not be installed in this
-runtime, so the completed benchmark used the same underlying LightGBM /
-scikit-learn algorithms":
+Adapted from an uploaded PyCaret-based script and reference output from
+a prior run of it. Two substitutions, both already used by that
+reference run itself (it noted PyCaret wasn't installable in its own
+runtime either):
 
-- **No PyCaret.** `pycaret[full]` is a large, fast-moving dependency
-  tree this repo doesn't otherwise need — everything else here runs on
-  `requirements.txt`'s existing pandas/numpy/scipy/scikit-learn. Fits
-  `HistGradientBoostingRegressor`, `RandomForestRegressor`, and `Ridge`
-  directly instead, backtested and picked by MAE exactly like the
-  original's PyCaret-wrapped shortlist. `lightgbm` isn't installed here
-  either, so `HistGradientBoostingRegressor` stands in for it, the same
-  substitution the reference run itself made.
+- **No PyCaret.** Fits `HistGradientBoostingRegressor`,
+  `RandomForestRegressor`, and `Ridge` directly instead of pulling in
+  `pycaret[full]`'s large dependency tree — backtested and picked by MAE
+  the same way the original's PyCaret-wrapped shortlist was.
 - **No separate "Version 1" statistical script.** The original expects
-  pre-generated `_forecast_summary.csv`/`_forecast_detail.csv` from a
-  companion script this repo doesn't have. Rebuilt directly:
-  `Naive`, 4- and 8-week moving averages, simple exponential smoothing,
-  52-week seasonal naive, and Croston's method (classic and the
-  SBA-corrected variant) plus TSB — the same seven-method family named
-  in the uploaded reference's `Champion_Model` column, implemented from
-  their standard formulas.
+  pre-generated forecast files from a companion script this repo doesn't
+  have. Rebuilt directly: Naive, moving averages, simple exponential
+  smoothing, seasonal naive, and Croston's method (classic, SBA-corrected,
+  and TSB) — implemented from their standard formulas.
 
-One real, verified issue fixed rather than carried over: the original
-computes `History_Weeks`/`Positive_Weeks`/ADI against the full 106-week
-panel for every SKU, regardless of when that SKU actually started
-selling. Checked directly against `data/Data.xlsx`: 502 of 3,080 SKUs
-(16%) don't appear until more than a year into the panel, so crediting
-them with a 106-week "history" materially overstates how lumpy their
-demand looks (a SKU selling in 3 of its own first 16 weeks gets
-ADI = 106/3 = 35.3 — "extremely lumpy" — instead of the 16/3 = 5.3 its
-own actual selling window would show). Fixed by measuring each SKU's
-history from its own first sale week onward. This is also why this
-run's demand-pattern mix differs from the uploaded reference's: Smooth
-and Erratic both come out far more common here (101 and 493 SKUs vs.
-the reference's 1 and 151) once new SKUs aren't miscounted as
-long-dormant ones.
+One real issue fixed: the original measured every SKU's history against
+the full 106-week panel regardless of when that SKU actually started
+selling. Checked directly: 502 of 3,080 SKUs (16%) don't appear until
+more than a year into the panel, so crediting them with a full-panel
+history materially overstates how lumpy their demand looks. Fixed by
+measuring each SKU's history from its own first sale week onward — this
+is also why this run's demand-pattern mix differs from the uploaded
+reference's (more SKUs classified Smooth/Erratic once new SKUs aren't
+miscounted as long-dormant ones).
 
-**Verified against `data/Data.xlsx`** (all countries, 3,080 SKUs,
-keyed by `StockCode` — the finer-grained identifier here, unlike the
-rest of this repo's `Description`; 3,081 codes cover 3,037 descriptions,
-with 30 descriptions spanning more than one code): the statistical side
-won for 2,161 SKUs (70%) and the ML side for 919 (30%) — close to the
-uploaded reference's own 74%/26% split, with the gap explained by the
-demand-classification fix above changing which SKUs even get a
-meaningful statistical backtest. Median statistical MAE 2.57, median ML
-MAE 3.08, median hybrid MAE 2.83 — matching the reference's own median
-AutoML MAE of 3.09 and median hybrid MAE of 2.82 almost exactly, despite
-using different underlying ML algorithms. Total hybrid 12-week forecast:
-~324,000 units (~$659,000 revenue), close to the reference's ~330,000
-units.
+**Verified against `data/Data.xlsx`** (all countries, 3,080 SKUs, keyed
+by `StockCode` — the finer-grained identifier here, unlike the rest of
+this repo's `Description`): the statistical side won for 70% of SKUs and
+the ML side for 30%, closely matching the uploaded reference's own split
+and median error despite using different underlying ML algorithms.
+Total hybrid 12-week forecast: ~324,000 units (~$659,000 revenue).
