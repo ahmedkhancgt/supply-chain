@@ -6,10 +6,7 @@ Supply Chain repository
 
 Every script in this repo reads from `Config.data_path`
 (`src/inventory_planning.py`), which points at `data/Data.xlsx` —
-140,000 transactions across 40 countries. `Config.country` defaults to
-`"Germany"`, analyzing a 2,867-row slice by default; point `Config.country`
-at any of the other 39 countries in the file (or set it to `None` for the
-full unfiltered dataset) to analyze a different scope.
+140,000 transactions across 40 countries. 
 
 Data.xlsx carries real per-transaction data for several assumptions that
 would otherwise be flat placeholder constants: `lead_time_days`,
