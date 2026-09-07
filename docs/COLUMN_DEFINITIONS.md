@@ -5,8 +5,8 @@ This document explains every derived column produced by
 underlying formula and a worked numeric example. It's meant to be readable
 without knowing pandas or the statistics behind it in advance.
 
-All examples below use one real row from a run against `data/Data.xlsx`
-(`Config.country = "Germany"`):
+All examples below use one real row from a run against `data/Data.xlsx`,
+filtered to `Config`'s default single-country scope:
 
 **Regency Cakestand Tier** — `average = 28.5`, `sd = 38.89`,
 `product_mix = A_A`, `service_level = 0.95`, `lead_time_days = 24.0`,

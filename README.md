@@ -6,10 +6,13 @@ Supply Chain repository
 
 Every script in this repo reads from `Config.data_path`
 (`src/inventory_planning.py`), which points at `data/Data.xlsx` —
-140,000 transactions across 40 countries. `Config.country` defaults to
-`"Germany"`, analyzing a 2,867-row slice by default; point `Config.country`
-at any of the other 39 countries in the file (or set it to `None` for the
-full unfiltered dataset) to analyze a different scope.
+140,000 transactions across 41 countries. Most scripts analyze one
+country at a time, set via `Config.country`; point it at any country
+present in the file, or set it to `None` to analyze the full unfiltered
+dataset instead. The examples and figures throughout this README (row
+counts, invoice counts, etc.) all come from a single-country run using
+`Config`'s current default — re-run against whichever country you set
+to see your own numbers.
 
 Data.xlsx carries real per-transaction data for several assumptions that
 would otherwise be flat placeholder constants: `lead_time_days`,
@@ -30,10 +33,11 @@ has no equivalent columns for either.
 `trade_area_modelling.py`.
 
 `market_basket_analysis.py`'s `MIN_SUPPORT` (0.006) was tuned directly
-against this data's Germany slice (634 invoices, 1,250 products) rather
-than reused from the source notebook's default — re-check this constant
-if the data source changes, since it isn't derivable from anything else
-in the file the way the cost/lead-time columns are.
+against this data's default single-country scope (634 invoices, 1,250
+products) rather than reused from the source notebook's default —
+re-check this constant if the data source or country scope changes,
+since it isn't derivable from anything else in the file the way the
+cost/lead-time columns are.
 
 ## Inventory planning pipeline
 
@@ -54,10 +58,11 @@ pip install -r requirements.txt
 python3 src/inventory_planning.py
 ```
 
-By default it reads `data/Data.xlsx`, filtered to `country="Germany"` (see
-"Data source" above). To point it at a different file or country, edit the
-`Config` defaults at the top of `src/inventory_planning.py` (`data_path`,
-`country`, `analysis_window_months`).
+By default it reads `data/Data.xlsx`, filtered to `Config.country`'s
+default value (see "Data source" above). To point it at a different file
+or country, edit the `Config` defaults at the top of
+`src/inventory_planning.py` (`data_path`, `country`,
+`analysis_window_months`).
 
 `lead_time_days`, `lead_time_sd_days`, `ordering_cost_per_order`, and
 `holding_rate` on `Config` are **fallback values only** — real per-SKU
@@ -201,8 +206,8 @@ placeholders in the same category as `inventory_planning.Config`'s
 defaulted to match what the original scripts assumed.
 
 **Why so few SKUs get a price elasticity or optimization result**: most
-Germany SKUs barely change price at all over the history — of 1,250 SKUs,
-only 6 had enough weeks of real price variation for
+SKUs in the default scope barely change price at all over the history —
+of 1,250 SKUs, only 6 had enough weeks of real price variation for
 `compute_price_elasticity`, and only 5 (the top sellers among those) get
 the full `single_product_optimization` treatment. This mirrors the
 demand-sparsity finding from the policy backtest above — the data
@@ -243,7 +248,7 @@ Real bugs fixed rather than carried over:
 
 **A caveat worth knowing, not a bug**: `monetary` (an RFM feature the
 classifier trains on) is the same value as `ltv` (what `KMeans` actually
-clustered on) — confirmed in the Germany run, where the winning model's
+clustered on) — confirmed by running this, where the winning model's
 feature importance came out `monetary: 1.0`, everything else `0.0`. The
 classifier isn't learning a genuine behavioral pattern so much as
 recovering its own label through a renamed copy of it. Kept as-is to
@@ -304,7 +309,7 @@ Real issues fixed rather than carried over:
 rules against genuinely slow-moving products, to surface potential
 cross-sell pairings for stock that isn't selling on its own. Adapted from
 an uploaded notebook that assumed a pre-existing cleaned CSV this repo
-doesn't have — rebuilt on the same cleaned Germany transaction data
+doesn't have — rebuilt on the same cleaned transaction data
 `inventory_planning.py` loads.
 
 ```bash

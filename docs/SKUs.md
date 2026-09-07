@@ -4,8 +4,8 @@ Quick-reference table for every column in `output/reorder_recommendations.csv`
 and the "Reorder Recommendations" sheet of `output/inventory_report.xlsx`
 (one row per product/SKU). For formulas and worked examples, see
 [`COLUMN_DEFINITIONS.md`](COLUMN_DEFINITIONS.md). Example values below are
-one real row (**Regency Cakestand Tier**) from a run against `data/Data.xlsx`
-(`Config.country = "Germany"`).
+one real row (**Regency Cakestand Tier**) from a run against `data/Data.xlsx`,
+filtered to `Config`'s default single-country scope.
 
 | Column | Type | Example | What it is |
 |---|---|---|---|

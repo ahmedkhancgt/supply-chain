@@ -183,8 +183,8 @@ matter equally everywhere, or does its importance shift by market?**
 
 Same formula as ABC classification above (volume × revenue, Pareto
 buckets), computed **independently per country** rather than pooled —
-because a SKU that's a top seller in Germany can be a long-tail item in
-Australia, and pooling them together would hide that difference. This
+because a SKU that's a top seller in one country can be a long-tail item
+in another, and pooling them together would hide that difference. This
 matters for the business because purchasing, stocking, and marketing
 decisions made centrally (e.g. "we're deprioritizing this SKU") can be
 wrong for a specific market if they're based on global averages alone.
