@@ -1,0 +1,6 @@
+id,code,name,location,capacity_sqft
+1,WH-LON-01,London Logistics Hub,"London, UK",85000
+2,WH-DXB-01,Dubai Gateway Logistics,"Dubai, UAE",150000
+3,WH-SIN-01,Singapore Distribution Center,Singapore,110000
+4,WH-NYC-01,New York Fulfillment Center,"New York, USA",140000
+5,WH-FRA-01,Frankfurt Air Hub,"Frankfurt, Germany",90000

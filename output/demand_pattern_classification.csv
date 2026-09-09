@@ -1,0 +1,610 @@
+Description,ADI,average,sd,cv_squared,demand_pattern,product_mix
+3D Kit Cards For Kids,617.0,12.0,0.0,0.0,intermittent,A_B
+3D Traditional Christmas Stickers,32.0,18.0,0.0,0.0,intermittent,A_A
+Abc Treasure Book Box,34.0,8.0,0.0,0.0,intermittent,B_A
+Airline Bag Vintage Jet Brown,183.66666666666666,5.25,4.716990566028302,0.8072562358276644,lumpy,B_A
+Alarm Clock Bakelike Chocolate,94.75,4.4,2.1908902300206643,0.24793388429752056,intermittent,B_A
+Alarm Clock Bakelike Green,140.66666666666666,5.0,2.0,0.16000000000000003,intermittent,B_A
+Alarm Clock Bakelike Ivory,64.5,6.4,3.5777087639996634,0.3124999999999999,intermittent,A_A
+Alarm Clock Bakelike Orange,59.0,6.0,5.291502622129181,0.7777777777777778,lumpy,B_A
+Alarm Clock Bakelike Pink,94.66666666666667,8.0,3.265986323710904,0.16666666666666666,intermittent,A_A
+Animal Stickers,104.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_B
+Apple Bath Sponge,443.0,10.0,0.0,0.0,intermittent,B_B
+Apron Apple Delight,12.0,4.0,0.0,0.0,intermittent,C_A
+Babushka Lights String,167.5,2.0,0.0,0.0,intermittent,C_A
+Babushka Nesting Boxes,350.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Bag Swirly Marbles,389.0,12.0,0.0,0.0,intermittent,A_C
+Baking Retrospot,92.66666666666667,2.75,0.49999999999999994,0.033057851239669415,intermittent,C_A
+Baking Spaceboy,214.0,2.5,0.7071067811865476,0.08,intermittent,C_B
+Beach Hut Key Cabinet,51.0,6.0,2.8284271247461903,0.22222222222222227,intermittent,B_A
+Big Doughnut Fridge Magnets,72.57142857142857,25.5,20.72265840640557,0.6604053386060308,lumpy,A_A
+Bird Decoration Green Spot,188.0,12.0,0.0,0.0,intermittent,A_A
+Bird House Hot Water Bottle,41.0,4.0,2.8284271247461903,0.5000000000000001,lumpy,C_B
+Birds Mobile Vintage,177.66666666666666,3.75,1.5,0.16000000000000003,intermittent,B_A
+Birdy Gift Tags,520.0,12.0,0.0,0.0,intermittent,A_B
+Biscuit Tin S Christmas,42.0,6.0,0.0,0.0,intermittent,B_A
+Black Baroque Cuckoo Clock,98.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Black Kitchen Scales,185.0,6.5,7.7781745930520225,1.4319526627218935,lumpy,B_A
+Black Skull Balloons,407.0,20.0,0.0,0.0,intermittent,A_B
+Blue Egg Spoon,141.0,24.0,0.0,0.0,intermittent,A_C
+Blue Happy Birthday Bunting,63.75,4.8,4.024922359499621,0.7031250000000001,lumpy,A_A
+Blue Harmonica In Box,77.28571428571429,22.5,29.698484809834994,1.7422222222222221,lumpy,A_A
+Blue Mini Dots Cutlery,228.66666666666666,6.0,1.632993161855452,0.07407407407407407,intermittent,A_A
+Blue Paisley Journal,236.0,20.0,15.0996688705415,0.5700000000000001,lumpy,A_A
+Blue Paisley Sketchbook,119.0,4.0,0.0,0.0,intermittent,C_B
+Blue Paper Parasol,364.0,6.0,0.0,0.0,intermittent,B_A
+Blue Polkadot Beaker,147.0,6.0,0.0,0.0,intermittent,B_B
+Blue Polkadot Bowl,67.83333333333333,8.0,0.0,0.0,intermittent,A_A
+Blue Polkadot Plate,82.4,9.333333333333334,3.265986323710904,0.1224489795918367,intermittent,A_A
+Blue Polkadot Wrap,207.0,25.0,0.0,0.0,intermittent,A_B
+Blue Spot Ceramic Drawer Knob,199.0,12.0,0.0,0.0,intermittent,A_A
+Blue Spotty Cup,84.57142857142857,11.75,7.887603293414656,0.4506240703615082,intermittent,A_A
+Blue Spotty Pudding Bowl,70.5,8.0,3.4641016151377544,0.18749999999999997,intermittent,A_A
+Blue Stripe Ceramic Drawer Knob,96.28571428571429,12.0,0.0,0.0,intermittent,A_A
+Blue Tile Hook,161.0,8.0,0.0,0.0,intermittent,B_A
+Botanical Lavender Birthday Card,657.0,12.0,0.0,0.0,intermittent,B_C
+Botanical Lily Greeting Card,276.5,16.0,6.928203230275509,0.18749999999999997,intermittent,A_B
+Bottle Top Magnets,149.0,12.0,0.0,0.0,intermittent,B_C
+Box Cocktail Parasols,113.0,37.5,30.618621784789728,0.6666666666666666,lumpy,A_A
+Boxes Bird Pannetone,91.0,40.0,48.49742261192856,1.4700000000000002,lumpy,A_A
+Boxes Christmas Pannetone,15.0,24.0,0.0,0.0,intermittent,A_A
+Boys Alphabet Iron On Patches,529.0,288.0,0.0,0.0,intermittent,A_A
+Bread Bin Diner Style Mint,49.0,4.0,0.0,0.0,intermittent,B_A
+Bread Bin Diner Style Pink,7.0,5.0,1.4142135623730951,0.08,intermittent,C_A
+Bright Blues Ribbons,325.0,12.0,0.0,0.0,intermittent,B_B
+Brocade Ring Purse,73.0,54.0,25.45584412271571,0.2222222222222222,intermittent,A_A
+Brocante Coat Rack,48.5,3.3333333333333335,1.1547005383792515,0.11999999999999997,intermittent,C_A
+Bundle Alphabet Exercise Books,35.0,12.0,0.0,0.0,intermittent,B_A
+Bundle Retro Note Books,1.0,12.0,0.0,0.0,smooth,B_A
+Bundle School Exercise Books,102.0,12.0,0.0,0.0,intermittent,B_A
+Butterfly Cookie Cutters,108.25,14.4,5.366563145999495,0.1388888888888889,intermittent,A_A
+Cabin Bag Vintage Paisley,205.0,8.666666666666666,5.773502691896257,0.4437869822485207,intermittent,A_A
+Cabin Bag Vintage Retrospot,127.75,3.6,4.774934554525329,1.7592592592592595,lumpy,B_A
+Cake Plate Lovebird Pink,39.0,3.0,0.0,0.0,intermittent,C_B
+Cake Plate Lovebird White,321.0,3.0,0.0,0.0,intermittent,C_B
+Cake Stand Lace White,143.0,3.0,0.0,0.0,intermittent,C_B
+Cake Stand Tier Magic Garden,327.0,7.0,7.0710678118654755,1.0204081632653064,lumpy,B_A
+Cake Stand White Two Tier Lace,208.0,2.0,0.0,0.0,intermittent,C_B
+Cake Tins Pantry,116.0,7.0,4.58257569495584,0.4285714285714285,intermittent,B_A
+Cakes And Bows Gift Tape,212.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_C
+Cakes And Rabbits Flannel,227.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Camo Stationery,316.0,108.0,0.0,0.0,intermittent,A_B
+Candy Spot Egg Warmer Hare,179.0,12.0,0.0,0.0,intermittent,A_A
+Card Cat And Tree,348.0,12.0,0.0,0.0,intermittent,B_C
+Card Circus Parade,59.22222222222222,12.0,0.0,0.0,intermittent,A_A
+Card Party Games,239.0,12.0,0.0,0.0,intermittent,B_C
+Cases Woodland,35.666666666666664,2.857142857142857,1.0690449676496976,0.14,intermittent,B_A
+Ceramic Cake Bowl + Hanging Cakes,53.0,10.5,3.0,0.08163265306122448,intermittent,A_A
+Ceramic Christmas Reindeer,38.5,24.0,20.784609690826528,0.7500000000000001,lumpy,A_A
+Ceramic Pirate Chest Money Bank,44.0,12.0,0.0,0.0,intermittent,B_B
+Ceramic Strawberry Money Box,223.0,6.0,0.0,0.0,intermittent,B_B
+Ceramic Strawberry Trinket Tray,606.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_A
+Charlotte Bag Apples,16.666666666666668,10.0,0.0,0.0,intermittent,A_B
+Charlotte Bag Pink Polkadot,94.4,11.666666666666666,4.0824829046386295,0.1224489795918367,intermittent,A_A
+Charlotte Bag Suki,101.2,25.5,20.03746490951388,0.6174548250672819,lumpy,A_A
+Charlotte Bag Vintage Alphabet,109.5,10.0,0.0,0.0,intermittent,A_B
+Cherry Blossom Decorative Flask,154.33333333333334,10.0,4.0,0.16000000000000003,intermittent,A_A
+Chick Grey Hot Water Bottle,138.2,8.0,8.0,1.0,lumpy,A_A
+Children S Circus Parade Mug,58.333333333333336,12.0,0.0,0.0,intermittent,A_A
+Children S Spaceboy Mug,103.33333333333333,12.0,0.0,0.0,intermittent,A_A
+Childrens Apron Apples,50.714285714285715,7.25,2.121320343559643,0.08561236623067776,intermittent,A_A
+Childrens Apron Spaceboy,160.5,8.0,0.0,0.0,intermittent,B_A
+Childrens Cutlery Circus Parade,19.0,4.0,0.0,0.0,intermittent,B_A
+Childrens Cutlery Dolly Girl,41.25,4.0,0.0,0.0,intermittent,B_A
+Childrens Cutlery Spaceboy,45.666666666666664,7.0,2.0,0.08163265306122448,intermittent,A_A
+Childrens Toy Cooking Utensil,2.0,6.0,0.0,0.0,intermittent,B_B
+Childs Breakfast Circus Parade,89.6,2.0,0.0,0.0,intermittent,B_A
+Childs Breakfast Dolly Girl,103.0,2.0,0.0,0.0,intermittent,C_A
+Childs Breakfast Spaceboy,52.5,3.6,2.6076809620810595,0.5246913580246914,lumpy,B_A
+Childs Garden Rake Blue,291.0,3.5,3.5355339059327378,1.0204081632653064,lumpy,C_C
+Childs Garden Trowel Blue,25.0,12.0,0.0,0.0,intermittent,A_B
+Chocolate Box Ribbons,151.25,12.0,0.0,0.0,intermittent,A_A
+Christmas Craft Tree Top Angel,381.0,6.0,0.0,0.0,intermittent,B_B
+Christmas Metal Tags,39.0,30.0,8.48528137423857,0.08,intermittent,A_A
+Christmas Retrospot Star Wood,28.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Circus Parade Baby Gift,25.0,2.5,2.1213203435596424,0.7199999999999998,lumpy,C_A
+Circus Parade Lunch Box,64.85714285714286,12.0,0.0,0.0,intermittent,A_A
+Clothes Pegs Retrospot,97.5,12.0,0.0,0.0,intermittent,A_A
+Coffee Mug Apples,108.2,6.0,0.0,0.0,intermittent,A_A
+Coffee Mug Cat + Bird,21.5,6.0,0.0,0.0,intermittent,B_A
+Coffee Mug Dog + Ball,246.0,6.0,0.0,0.0,intermittent,B_B
+Coffee Mug Pears,97.33333333333333,12.857142857142858,11.186726828829654,0.7570370370370371,lumpy,A_A
+Colour Pencils Spaceboy,73.0,20.0,5.656854249492381,0.08,intermittent,A_B
+Coloured Party Balloons,248.0,20.0,0.0,0.0,intermittent,A_B
+Colourful Standing Gnome,36.5,18.0,10.392304845413264,0.3333333333333333,intermittent,A_A
+Colouring Pencils Doily,54.0,16.0,0.0,0.0,intermittent,A_B
+Cooking Retrospot,27.0,1.5,0.7071067811865476,0.22222222222222227,intermittent,C_B
+Cowboys And Indians Birthday Card,289.0,16.0,6.928203230275509,0.18749999999999997,intermittent,A_B
+Cream Felt Easter Egg Basket,101.0,6.0,0.0,0.0,intermittent,B_B
+Crochet Rose Purse With Suede Back,78.25,7.2,2.6832815729997477,0.1388888888888889,intermittent,A_A
+Cubic Mug Pink Polkadot,121.0,6.0,0.0,0.0,intermittent,B_B
+Cute Cats Tape,76.2,14.0,4.898979485566356,0.1224489795918367,intermittent,A_A
+Daisy Journal,244.0,36.0,0.0,0.0,intermittent,A_A
+Deluxe Sewing Kit,87.2,4.5,2.5099800796022267,0.31111111111111117,intermittent,A_A
+Dinosaur Height Chart Sticker,209.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_A
+Dinosaur Keyrings,152.33333333333334,45.0,18.0,0.16000000000000003,intermittent,A_A
+Dinosaur Lunch Box With Cutlery,121.5,6.0,0.0,0.0,intermittent,B_A
+Dinosaur Party Bag + Sticker,129.0,8.0,0.0,0.0,intermittent,A_A
+Dinosaurs Water Transfer Tattoos,76.5,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Dog Bowl Chasing Ball,44.0,6.0,0.0,0.0,intermittent,B_A
+Doilies Pantry,7.0,12.0,0.0,0.0,intermittent,B_B
+Doilies Spaceboy,150.0,12.0,0.0,0.0,intermittent,B_B
+Dolly Girl Beaker,53.0,12.0,0.0,0.0,intermittent,A_B
+Dolly Girl Childrens Cup,33.0,9.6,3.5777087639996634,0.1388888888888889,intermittent,A_A
+Dolly Pegs Retrospot,275.5,14.666666666666666,4.618802153517007,0.09917355371900831,intermittent,A_A
+Doormat Airmail,152.66666666666666,2.0,0.0,0.0,intermittent,C_A
+Doormat Home Sweet Home Blue,291.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Doormat Red Retrospot,103.33333333333333,2.25,1.2583057392117916,0.3127572016460905,intermittent,C_A
+Doormat Spotty Home Sweet Home,249.0,10.666666666666666,9.018499505645789,0.71484375,lumpy,A_A
+Doormat Welcome To Our Home,113.75,4.0,3.464101615137755,0.7500000000000001,lumpy,B_A
+Doughnut Lip Gloss,63.5,20.0,0.0,0.0,intermittent,A_A
+Drawer Knob Ceramic Black,81.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_B
+Drawer Knob Crackle Glaze Green,12.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_B
+Easter Gift Tags,17.0,12.0,0.0,0.0,intermittent,A_B
+Easter Tin Bucket,66.66666666666667,15.0,11.489125293076057,0.5866666666666668,lumpy,A_A
+Easter Tin Chicks Pink Daisy,5.0,6.0,0.0,0.0,intermittent,B_B
+Easter Tin Keepsake,17.333333333333332,18.0,20.199009876724155,1.2592592592592593,lumpy,A_A
+Edwardian Parasol Black,90.0,9.0,7.035623639735144,0.611111111111111,lumpy,A_A
+Edwardian Parasol Natural,100.0,6.8,6.942621983083913,1.042387543252595,lumpy,A_A
+Edwardian Parasol Pink,31.0,4.5,2.1213203435596424,0.22222222222222215,intermittent,C_A
+Edwardian Parasol Red,369.0,10.5,2.1213203435596424,0.04081632653061224,intermittent,B_A
+Embossed Glass Tealight Holder,71.0,12.0,0.0,0.0,intermittent,B_B
+Embroidered Ribbon Reel Daisy,70.0,6.0,0.0,0.0,intermittent,B_B
+Enamel Blue Rim Coffee Container,155.0,18.0,10.392304845413264,0.3333333333333333,intermittent,A_A
+Enamel Colander Cream,49.0,3.0,0.0,0.0,intermittent,C_A
+Enamel Flower Jug Cream,422.0,3.0,0.0,0.0,intermittent,C_A
+Enamel Pink Sugar Container,218.0,15.0,12.727922061357855,0.72,lumpy,A_B
+Enamel Pink Tea Container,155.5,8.0,3.4641016151377544,0.18749999999999997,intermittent,B_A
+Enchanted Bird Coathanger Hook,219.0,8.0,0.0,0.0,intermittent,B_A
+Fairy Cake Baking Cases,60.0,10.666666666666666,4.618802153517007,0.18750000000000008,intermittent,A_B
+Fairy Cake Umbrella,553.0,4.0,0.0,0.0,intermittent,C_B
+Fairy Tale Cottage Nightlight,156.5,12.0,0.0,0.0,intermittent,A_A
+Family Album White Picture Frame,236.5,2.6666666666666665,1.1547005383792515,0.18749999999999997,intermittent,C_A
+Fancy Font Birthday Card,504.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Fawn And Mushroom Greeting Card,25.666666666666668,12.0,0.0,0.0,intermittent,A_B
+Fawn Blue Hot Water Bottle,90.625,8.444444444444445,5.174724898753341,0.37551939058171746,intermittent,A_A
+Feather Pen Light Pink,247.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Felt Egg Cosy Chicken,224.0,12.0,0.0,0.0,intermittent,A_B
+Felt Toadstool Large,100.0,12.0,0.0,0.0,intermittent,A_A
+Feltcraft Cushion Owl,88.5,17.333333333333332,11.547005383792516,0.4437869822485208,intermittent,A_A
+Feltcraft Flower Friends,35.0,6.0,0.0,0.0,intermittent,B_A
+Feltcraft Princess Charlotte Doll,394.0,4.0,0.0,0.0,intermittent,C_B
+Fire Engine/Car Patches,21.0,12.0,0.0,0.0,intermittent,B_B
+Five Cats Hanging Decoration,566.0,6.0,0.0,0.0,intermittent,B_A
+Five Heart Hanging Decoration,473.0,6.0,0.0,0.0,intermittent,B_A
+Floral Elephant Soft Toy,211.0,3.0,0.0,0.0,intermittent,C_B
+Floral Soft Car Toy,62.0,4.0,0.0,0.0,intermittent,C_B
+Flower/Butterfly Patches,151.0,11.0,1.7320508075688772,0.02479338842975206,intermittent,A_A
+Foil Heart Cake Cases,21.5,8.0,3.4641016151377544,0.18749999999999997,intermittent,B_A
+Folding Butterfly Mirror Hot Pink,10.0,12.0,0.0,0.0,intermittent,B_B
+Food Container Love Heart,301.0,6.0,0.0,0.0,intermittent,B_B
+Fork Candles,28.0,15.0,4.242640687119285,0.08,intermittent,A_A
+Four Hook White Lovebirds,147.5,6.0,0.0,0.0,intermittent,A_A
+French Enamel Pot W Lid,189.0,6.0,0.0,0.0,intermittent,B_A
+French Enamel Utensil Holder,71.75,5.6,2.1908902300206647,0.153061224489796,intermittent,A_A
+Frog King Watering Can,3.0,6.0,0.0,0.0,intermittent,B_A
+Frying Pan Pink Polkadot,174.25,4.4,2.1908902300206647,0.24793388429752067,intermittent,B_A
+Frying Pan Red Polkadot,162.25,3.6,0.8944271909999159,0.06172839506172839,intermittent,B_A
+Funky Diva Pen,109.0,48.0,0.0,0.0,intermittent,A_A
+Funky Monkey Gift Bag Medium,424.0,84.0,84.8528137423857,1.0204081632653064,lumpy,A_A
+Gentleman Shirt Repair Kit,171.0,12.0,0.0,0.0,intermittent,B_B
+Gift Bag Birthday,136.5,20.0,13.856406460551018,0.48,intermittent,A_A
+Gift Bag Psychedelic Apples,92.75,14.4,5.366563145999495,0.1388888888888889,intermittent,A_A
+Gift Tags S Christmas,22.333333333333332,12.0,0.0,0.0,intermittent,A_A
+Gift Tags Vintage Christmas,48.0,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Gingerbread Man Cookie Cutter,141.0,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Girls Alphabet Iron On Patches,60.0,288.0,0.0,0.0,intermittent,A_A
+Girls Celebration Candles,389.0,12.0,0.0,0.0,intermittent,B_B
+Glass Beurre Dish,90.0,24.0,0.0,0.0,intermittent,A_A
+Glass Chalice Green Large,360.0,6.0,0.0,0.0,intermittent,B_B
+Glass Etched T-Light Holder Large,13.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_A
+Glitter Butterfly Clips,368.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_A
+Green Gingham Flower Jewellery Box,92.0,10.0,2.8284271247461903,0.08,intermittent,B_B
+Green Mini Dots Cutlery,528.0,5.0,1.4142135623730951,0.08,intermittent,C_A
+Green Polkadot Bowl,589.0,8.0,0.0,0.0,intermittent,B_B
+Green Spotty Cup,59.0,8.0,0.0,0.0,intermittent,A_B
+Green Vintage Spot Beaker,27.0,8.0,0.0,0.0,intermittent,B_C
+Grey Heart Hot Water Bottle,51.0,4.0,0.0,0.0,intermittent,C_B
+Gumball Coat Rack,111.0,26.0,25.361387974635775,0.9514792899408286,lumpy,A_A
+Gumball Magazine Rack,30.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Hand Warmer Babushka,217.5,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Hanging Quilted Patchwork Apples,16.0,15.0,6.0,0.16000000000000003,intermittent,A_A
+Hanging Ridge Glass T-Light Holder,59.0,12.0,0.0,0.0,intermittent,B_A
+Happy Stencil Craft,199.66666666666666,18.0,12.0,0.4444444444444444,intermittent,A_A
+Heart Cookie Cutters,80.0,12.0,0.0,0.0,intermittent,A_B
+Heart Shaped Balloons,120.0,12.0,0.0,0.0,intermittent,A_B
+Heart T-Light Holder Willie Winkie,50.0,12.0,0.0,0.0,intermittent,A_A
+Heart Wreath Decoration With Bell,36.0,84.0,84.8528137423857,1.0204081632653064,lumpy,A_A
+Home Sweet Home Key Holder,14.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Hook Hanger Magic Garden,55.111111111111114,15.6,8.099382692526634,0.26955950032873105,intermittent,A_A
+Hook Hanger Magic Toadstool,43.42857142857143,12.0,0.0,0.0,intermittent,A_A
+Hook Hanger Red Magic Toadstool,55.857142857142854,21.0,16.664761795905928,0.6297376093294461,lumpy,A_A
+Hook Photo Shelf Antique White,156.0,4.0,2.0,0.25,intermittent,B_A
+Hot Water Bottle Babushka,16.0,6.0,2.8284271247461903,0.22222222222222227,intermittent,B_A
+Hot Water Bottle Keep Calm,58.0,4.0,0.0,0.0,intermittent,C_A
+I Love London Beaker,20.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_A
+I Love London Cake Cases,44.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_A
+Icon Placemat Pop Art Elvis,376.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_B
+Inflatable Political Globe,74.0,54.0,59.39696961966999,1.2098765432098764,lumpy,A_A
+Ivory Kitchen Scales,161.0,2.5,1.0,0.16000000000000003,intermittent,C_A
+Ivory Rose Peg Place Settings,271.0,30.0,25.45584412271571,0.72,lumpy,A_A
+Jam Jar With Green Lid,45.0,21.0,18.0,0.7346938775510203,lumpy,A_A
+Jam Jar With Pink Lid,33.77777777777778,14.4,7.58946638440411,0.2777777777777777,intermittent,A_A
+Jam Making Printed,39.888888888888886,15.6,5.796550698475775,0.13806706114398418,intermittent,A_A
+Jam Making With Jars,92.5,8.0,3.4641016151377544,0.18749999999999997,intermittent,A_A
+Jigsaw Toadstools,267.0,10.666666666666666,4.618802153517007,0.18750000000000008,intermittent,A_A
+Jigsaw Tree With Birdhouse,359.0,12.0,0.0,0.0,intermittent,A_B
+Jingle Bell Heart Antique Silver,36.0,12.0,0.0,0.0,intermittent,A_A
+Joy Large Wood Letters,91.0,2.5,2.1213203435596424,0.7199999999999998,lumpy,C_B
+Jumbo Bag Apples,37.6,11.666666666666666,4.0824829046386295,0.1224489795918367,intermittent,A_A
+Jumbo Bag Owls,87.0,12.5,5.0,0.16000000000000003,intermittent,A_A
+Jumbo Bag Pears,74.0,20.0,0.0,0.0,intermittent,A_A
+Jumbo Bag Pink Polkadot,122.33333333333333,10.0,0.0,0.0,intermittent,A_A
+Jumbo Bag Pink Vintage Paisley,402.0,10.0,0.0,0.0,intermittent,B_A
+Jumbo Bag Red Retrospot,131.4,13.666666666666666,9.83192080250175,0.5175490779298039,lumpy,A_A
+Jumbo Bag S Christmas,15.0,10.0,0.0,0.0,intermittent,B_A
+Jumbo Bag Scandinavian Paisley,124.5,28.0,40.24922359499622,2.066326530612245,lumpy,A_A
+Jumbo Bag Toys,27.5,10.0,0.0,0.0,intermittent,A_A
+Jumbo Bag Vintage Doily,63.0,10.0,0.0,0.0,intermittent,B_A
+Jumbo Bag Vintage Leaf,14.0,10.0,0.0,0.0,intermittent,B_A
+Jumbo Bag Woodland Animals,65.8,16.666666666666668,12.110601416389967,0.5279999999999999,lumpy,A_A
+Jumbo Storage Bag Suki,54.0,20.0,14.142135623730951,0.5000000000000001,lumpy,A_A
+Jungle Popsicles Ice Lolly Holders,46.0,12.0,0.0,0.0,intermittent,A_B
+Kids Colour Chalk Sticks,135.33333333333334,24.0,0.0,0.0,intermittent,A_A
+Kids Rain Mac Blue,304.0,24.0,0.0,0.0,intermittent,A_A
+Kids Rain Mac Pink,290.0,24.0,0.0,0.0,intermittent,A_A
+Kitchen Metal Sign,75.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Knick Knack Tins Doily,140.0,6.0,0.0,0.0,intermittent,B_A
+Knick Knack Tins Leaf,77.0,6.0,0.0,0.0,intermittent,B_A
+Knick Knack Tins Poppies,54.5,6.0,0.0,0.0,intermittent,B_A
+Knickerbockerglory Magnet,75.33333333333333,21.0,11.489125293076057,0.2993197278911565,intermittent,A_A
+Ladle Love Heart Pink,326.5,12.0,0.0,0.0,intermittent,A_B
+Ladle Love Heart Red,261.0,12.0,0.0,0.0,intermittent,A_C
+Large Chinese Style Scissor,31.0,15.0,7.0710678118654755,0.2222222222222222,intermittent,A_B
+Large Hanging Ivory & Red Wood,39.5,12.0,0.0,0.0,intermittent,A_B
+Lets Go Shopping Cotton Tote Bag,377.0,6.0,0.0,0.0,intermittent,B_B
+Lipstick Pen Baby Pink,295.0,12.0,0.0,0.0,intermittent,A_C
+London Tissues,147.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_B
+Lunch Bag Apple,53.333333333333336,12.5,5.0,0.16000000000000003,intermittent,A_A
+Lunch Bag Cars Blue,25.0,10.0,0.0,0.0,intermittent,B_B
+Lunch Bag Dolly Girl,10.0,55.0,63.63961030678928,1.3388429752066118,lumpy,A_A
+Lunch Bag Paisley Park,5.0,6.0,5.656854249492381,0.8888888888888891,lumpy,B_B
+Lunch Bag Pink Polkadot,118.66666666666667,12.5,5.0,0.16000000000000003,intermittent,A_A
+Lunch Bag Spaceboy,148.0,16.0,8.944271909999157,0.3124999999999999,intermittent,A_A
+Lunch Bag Vintage Doily,11.0,60.0,56.568542494923804,0.8888888888888888,lumpy,A_A
+Lunch Bag Woodland,64.71428571428571,13.75,5.175491695067657,0.14167650531286896,intermittent,A_A
+Lunch Box I Love London,90.5,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Lunch Box With Cutlery Fairy Cakes,54.6,12.0,12.0,1.0,lumpy,A_A
+Lunch Box With Cutlery Retrospot,58.7,22.90909090909091,35.88162355706482,2.453174603174603,lumpy,A_A
+Magic Drawing Slate Circus Parade,47.0,40.0,13.856406460551018,0.12,intermittent,A_A
+Magic Drawing Slate Dolly Girl,396.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_B
+Magic Drawing Slate Spaceboy,145.25,35.6,17.686152775547317,0.2468122711778816,intermittent,A_A
+Magic Sheep Wool Growing From Paper,323.5,32.0,34.64101615137755,1.1718750000000002,lumpy,A_A
+Magnets Childhood Memory,78.0,12.0,0.0,0.0,intermittent,A_B
+Magnets Retro Photo,174.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Magnets Swallows,28.0,12.0,0.0,0.0,intermittent,A_C
+Magnets Vintage Collage,211.0,6.5,7.7781745930520225,1.4319526627218935,lumpy,B_B
+Magnets Vintage Labels,111.0,12.0,0.0,0.0,intermittent,A_B
+Make Your Own Playtime Card Kit,94.0,12.0,8.48528137423857,0.4999999999999999,lumpy,A_A
+Measuring Tape Babushka Pink,127.75,6.2,3.8987177379235853,0.3954214360041623,intermittent,A_A
+Measuring Tape Babushka Red,53.5,8.0,3.4641016151377544,0.18749999999999997,intermittent,A_A
+Memo Board Cottage,70.11111111111111,4.4,1.2649110640673518,0.08264462809917354,intermittent,A_A
+Memo Board Retrospot,101.0,4.0,0.0,0.0,intermittent,C_A
+Milk Pan Pink Retrospot,55.0,6.0,2.8284271247461903,0.22222222222222227,intermittent,B_A
+Milk Pan Red Retrospot,87.5,4.8,1.7888543819998317,0.1388888888888889,intermittent,A_A
+Mini Cake Stand Hanging Strawbery,189.0,12.0,5.656854249492381,0.22222222222222227,intermittent,A_A
+Mini Cake Stand T-Light Holder,138.0,168.0,169.7056274847714,1.0204081632653064,lumpy,A_A
+Mini Funky Tapes,382.0,20.0,0.0,0.0,intermittent,A_B
+Mini Jigsaw Spaceboy,275.5,40.0,13.856406460551018,0.12,intermittent,A_A
+Mini Lights Woodland Mushrooms,6.0,8.25,5.678908345800273,0.4738292011019282,intermittent,A_A
+Mini Loaf Baking Cases,31.5,14.4,6.6932802122726045,0.21604938271604937,intermittent,A_A
+Mini Paint Vintage,106.0,36.0,0.0,0.0,intermittent,A_A
+Mint Kitchen Scales,78.25,2.4,0.8944271909999159,0.1388888888888889,intermittent,B_A
+Mobile Vintage Hearts,44.5,3.0,0.0,0.0,intermittent,C_A
+Money Box Biscuits,590.0,24.5,33.23401871576773,1.8400666389004579,lumpy,A_A
+Monkey Suction Cup Hook,257.0,24.0,0.0,0.0,intermittent,A_B
+Multi Colour Silver T-Light Holder,117.0,108.0,118.79393923933998,1.2098765432098764,lumpy,A_A
+Multicolour 3D Balls Garland,405.0,6.0,0.0,0.0,intermittent,B_B
+Multicolour Confetti In Tube,144.5,12.0,0.0,0.0,intermittent,A_A
+Mum S Kitchen Clock,69.0,4.0,0.0,0.0,intermittent,B_A
+Mushroom Blue Hot Water Bottle,9.5,6.0,0.0,0.0,intermittent,B_A
+Mushroom Cake Cases,74.125,26.666666666666668,8.0,0.09,intermittent,A_A
+Mushroom Paper Doilies,104.0,12.0,0.0,0.0,intermittent,A_B
+Napkins Pantry,81.2,14.0,4.898979485566356,0.1224489795918367,intermittent,A_A
+Napkins Red Apples,85.5,14.0,5.656854249492381,0.163265306122449,intermittent,A_A
+Nursery Des Round Boxes,26.5,4.333333333333333,2.8867513459481287,0.4437869822485207,intermittent,B_A
+Office Mug Warmer Pink,7.0,11.0,1.4142135623730951,0.016528925619834715,intermittent,B_A
+Oven Mitt Apples,39.142857142857146,12.5,4.629100498862757,0.1371428571428571,intermittent,A_A
+Overnight Bag Vintage Rose Paisley,139.0,2.5,0.7071067811865476,0.08,intermittent,C_B
+Owl Doorstop,210.0,3.0,0.0,0.0,intermittent,C_A
+Paisley Flower Doilies,448.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_A
+Pannetone Gift Boxes,112.0,6.0,0.0,0.0,intermittent,B_B
+Pantry Chopping Board,19.0,3.6,1.3416407864998738,0.1388888888888889,intermittent,B_A
+Pantry Jelly Moulds,49.0,48.0,64.24951361683604,1.7916666666666665,lumpy,A_A
+Pantry Scrubbing Brush,59.0,12.0,0.0,0.0,intermittent,A_A
+Pantry Tea Towels,61.0,10.8,7.8230428862431785,0.5246913580246912,lumpy,A_A
+Pantry Washing Up Brush,112.0,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Paper Bunting Retrospot,97.33333333333333,6.0,0.0,0.0,intermittent,B_A
+Paper Vintage Chick Paper Egg,20.0,6.0,0.0,0.0,intermittent,B_A
+Paperweight Childhood Memories,98.0,6.0,0.0,0.0,intermittent,B_B
+Parisienne Curio Cabinet,182.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Parisienne Sewing Box,197.0,2.0,0.0,0.0,intermittent,C_A
+Party Cone Christmas Decoration,24.0,18.0,6.928203230275509,0.1481481481481481,intermittent,A_A
+Party Invites Woodland,221.0,12.0,0.0,0.0,intermittent,A_A
+Party Pizza Dish Pink Polkadot,174.0,24.0,16.97056274847714,0.4999999999999999,lumpy,A_A
+Party Pizza Dish Red Retrospot,54.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Pencil Case Life Is Beautiful,196.0,27.0,29.698484809834994,1.2098765432098764,lumpy,A_A
+Pencil Small Tube Woodland,28.0,144.0,207.84609690826528,2.083333333333334,lumpy,A_A
+Pencils Small Tube Red Retrospot,10.0,24.0,0.0,0.0,intermittent,A_B
+Pencils Small Tube Skull,110.5,12.666666666666666,10.263202878893768,0.6565096952908588,lumpy,A_B
+Pencils Tall Tube Red Retrospot,253.0,12.0,0.0,0.0,intermittent,B_B
+Pencils Tall Tube Woodland,201.5,24.0,20.784609690826528,0.7500000000000001,lumpy,A_A
+Pencils Tube Red Retrospot,333.5,28.0,10.583005244258363,0.14285714285714288,intermittent,A_A
+Penny Farthing Birthday Card,24.5,16.0,6.928203230275509,0.18749999999999997,intermittent,A_B
+Picture Dominoes,151.0,14.4,5.366563145999495,0.1388888888888889,intermittent,A_A
+Pin Cushion Babushka Blue,184.0,4.333333333333333,2.886751345948129,0.4437869822485208,intermittent,B_A
+Pin Cushion Babushka Pink,287.0,6.0,0.0,0.0,intermittent,B_A
+Pink And White Christmas Tree,133.66666666666666,18.0,10.954451150103322,0.3703703703703704,intermittent,A_A
+Pink Doughnut Trinket Pot,296.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_A
+Pink Fairy Cake Cushion Cover,189.33333333333334,6.0,4.0,0.4444444444444444,intermittent,B_A
+Pink Glass Candleholder,92.0,6.0,0.0,0.0,intermittent,B_A
+Pink Happy Birthday Bunting,86.0,4.666666666666667,4.725815626252608,1.0255102040816324,lumpy,B_A
+Pink Heart Paper Doilies,122.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_A
+Pink Heart Shape Egg Frying Pan,254.0,6.0,0.0,0.0,intermittent,B_B
+Pink Mini Dots Cutlery,166.25,6.0,1.4142135623730951,0.055555555555555566,intermittent,A_A
+Pink Owl Soft Toy,63.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_A
+Pink Padded Mobile,68.0,6.0,4.242640687119285,0.4999999999999999,lumpy,B_A
+Pink Paper Parasol,35.0,6.0,0.0,0.0,intermittent,B_A
+Pink Party Bags,122.0,5.0,1.4142135623730951,0.08,intermittent,C_B
+Pink Polkadot Bowl,135.75,8.0,0.0,0.0,intermittent,A_A
+Pink Polkadot Wrap,109.0,25.0,0.0,0.0,intermittent,A_B
+Pink Poodle Hanging Decoration,130.0,12.0,0.0,0.0,intermittent,A_C
+Pink Spotty Cup,80.0,11.0,8.48528137423857,0.5950413223140495,lumpy,A_A
+Pink Spotty Plate,78.25,9.6,3.5777087639996634,0.1388888888888889,intermittent,A_A
+Pink Vintage Spot Beaker,15.5,8.0,0.0,0.0,intermittent,B_B
+Pink/Purple Retro Radio,365.0,6.0,0.0,0.0,intermittent,B_A
+Pink/White Christmas Tree,100.6,22.0,4.898979485566356,0.04958677685950412,intermittent,A_A
+Plasters In Tin Circus Parade,30.428571428571427,12.0,0.0,0.0,intermittent,A_A
+Plasters In Tin Skulls,100.66666666666667,12.0,0.0,0.0,intermittent,A_A
+Plasters In Tin Spaceboy,84.0,12.0,0.0,0.0,intermittent,A_A
+Plasters In Tin Strongman,97.0,14.0,4.898979485566356,0.1224489795918367,intermittent,A_A
+Plasters In Tin Vintage Paisley,192.0,12.0,0.0,0.0,intermittent,A_A
+Plasters In Tin Woodland Animals,48.0,12.923076923076923,3.328201177351375,0.06632653061224489,intermittent,A_A
+Pocket Bag Blue Paisley Red Spot,193.0,12.0,0.0,0.0,intermittent,B_B
+Pocket Bag Pink Paisely Brown Spot,15.0,12.0,0.0,0.0,intermittent,B_B
+Polkadot Pen,107.0,48.0,0.0,0.0,intermittent,A_A
+Polyester Filler Pad,66.0,10.0,2.8284271247461903,0.08,intermittent,B_B
+Poppy S Playhouse Bedroom,6.0,12.0,0.0,0.0,intermittent,A_A
+Poppy S Playhouse Kitchen,45.0,6.0,0.0,0.0,intermittent,B_B
+Potting Shed Twine,393.0,39.0,46.66904755831214,1.4319526627218935,lumpy,A_A
+Rabbit Cotton Tote Bag,220.5,10.0,3.4641016151377544,0.12,intermittent,A_A
+Rabbit Night Light,14.0,48.0,33.94112549695428,0.4999999999999999,lumpy,A_A
+Raffia Ribbons S Christmas,26.0,10.0,0.0,0.0,intermittent,B_B
+Rain Poncho Retrospot,114.0,24.0,0.0,0.0,intermittent,A_A
+Rainy Ladies Birthday Card,314.0,12.0,0.0,0.0,intermittent,B_C
+Recipe Box Blue Sketchbook,85.0,6.0,0.0,0.0,intermittent,B_A
+Recipe Box Pantry Yellow,153.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_A
+Recipe Box Retrospot,106.75,6.0,0.0,0.0,intermittent,A_A
+Recycled Acapulco Mat Blue,5.5,4.333333333333333,0.5773502691896257,0.017751479289940825,intermittent,B_A
+Recycled Acapulco Mat Green,18.0,7.0,7.0710678118654755,1.0204081632653064,lumpy,B_A
+Recycled Acapulco Mat Pink,119.0,3.0,1.7320508075688772,0.3333333333333333,intermittent,C_A
+Recycled Acapulco Mat Red,92.5,2.0,0.0,0.0,intermittent,C_A
+Recycled Acapulco Mat Turquoise,91.0,7.0,7.0710678118654755,1.0204081632653064,lumpy,B_A
+Red Apples Chopping Board,54.0,7.5,6.363961030678928,0.72,lumpy,B_A
+Red Baby Bunting,348.0,5.0,0.0,0.0,intermittent,C_B
+Red Daisy Paper Lampshade,253.0,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Red Gingham Rose Jewellery Box,112.33333333333333,10.285714285714286,6.047431568147636,0.345679012345679,intermittent,A_A
+Red Harmonica In Box,68.66666666666667,12.0,0.0,0.0,intermittent,A_A
+Red Heart Shape Love Bucket,322.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_A
+Red Kitchen Scales,74.4,3.3333333333333335,1.632993161855452,0.24,intermittent,B_A
+Red Metal Beach Spade,196.0,18.666666666666668,11.547005383792516,0.3826530612244898,intermittent,A_A
+Red Mini Dots Cutlery,106.6,5.666666666666667,1.505545305418162,0.07058823529411765,intermittent,A_A
+Red Polkadot Coffee Mug,103.66666666666667,6.0,0.0,0.0,intermittent,B_A
+Red Refectory Clock,25.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Red Retrospot Bowl,60.75,8.88888888888889,2.6666666666666665,0.09,intermittent,A_A
+Red Retrospot Butter Dish,125.66666666666667,7.5,7.14142842854285,0.9066666666666667,lumpy,A_A
+Red Retrospot Cake Stand,160.25,5.8,10.183319694480774,3.0826397146254467,lumpy,A_A
+Red Retrospot Charlotte Bag,133.75,24.0,16.73320053068151,0.48611111111111105,intermittent,A_A
+Red Retrospot Childrens Umbrella,51.46153846153846,8.285714285714286,5.369838436597961,0.42001280526845325,intermittent,A_A
+Red Retrospot Mini Cases,65.9090909090909,4.0,3.411211461689767,0.7272727272727273,lumpy,A_A
+Red Retrospot Mug,215.0,6.0,0.0,0.0,intermittent,B_A
+Red Retrospot Oven Glove,73.44444444444444,9.2,2.5298221281347035,0.07561436672967864,intermittent,A_A
+Red Retrospot Peg Bag,210.33333333333334,16.5,14.177446878757825,0.7382920110192839,lumpy,A_A
+Red Retrospot Picnic Bag,195.0,27.5,31.81980515339464,1.3388429752066118,lumpy,A_A
+Red Retrospot Plate,59.9,11.636363636363637,8.285803850837011,0.5070312499999998,lumpy,A_A
+Red Retrospot Pudding Bowl,106.75,4.0,0.0,0.0,intermittent,B_A
+Red Retrospot Shopper Bag,125.33333333333333,82.5,145.0,3.089072543617998,lumpy,A_A
+Red Retrospot Storage Jar,44.0,4.0,0.0,0.0,intermittent,C_B
+Red Retrospot Tape,64.2,16.0,6.196773353931867,0.15000000000000002,intermittent,A_A
+Red Retrospot Tissues,177.0,24.0,0.0,0.0,intermittent,A_B
+Red Retrospot Traditional Teapot,7.0,5.0,1.4142135623730951,0.08,intermittent,C_A
+Red Retrospot Umbrella,123.5,9.6,6.50384501660364,0.45898437500000006,intermittent,A_A
+Red Retrospot Wrap,392.0,25.0,0.0,0.0,intermittent,A_B
+Red Spot Ceramic Drawer Knob,219.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_A
+Red Spotty Biscuit Tin,66.5,6.0,0.0,0.0,intermittent,B_A
+Red Spotty Cup,34.9375,15.058823529411764,11.621481124599041,0.5955810546875002,lumpy,A_A
+Red Spotty Luggage Tag,48.0,9.5,5.0,0.27700831024930744,intermittent,A_A
+Red Spotty Pudding Bowl,82.75,6.0,0.0,0.0,intermittent,A_A
+Red Spotty Purse,116.0,6.0,0.0,0.0,intermittent,B_A
+Red Spotty Round Cake Tins,165.25,10.0,15.016657417681207,2.2550000000000003,lumpy,A_A
+Red Spotty Washbag,110.0,6.0,0.0,0.0,intermittent,B_B
+Red Stripe Ceramic Drawer Knob,98.14285714285714,13.5,4.242640687119285,0.09876543209876541,intermittent,A_A
+Red Toadstool Led Night Light,34.64705882352941,16.666666666666668,8.373628070246705,0.25242352941176477,intermittent,A_A
+Red Vintage Spot Beaker,39.333333333333336,10.0,4.0,0.16000000000000003,intermittent,A_B
+Regency Cake Tins,64.0,4.0,0.0,0.0,intermittent,B_A
+Regency Cakestand Tier,129.0,16.2,23.02607217916247,2.0202713001066908,lumpy,A_A
+Regency Sugar Bowl Green,141.0,4.0,0.0,0.0,intermittent,C_B
+Regency Tea Spoon,139.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_A
+Regency Teapot Roses,92.0,2.0,0.0,0.0,intermittent,C_A
+Retro Plastic Elephant Tray,227.0,12.0,0.0,0.0,intermittent,A_B
+Retrospot Babushka Doorstop,560.0,4.0,0.0,0.0,intermittent,C_B
+Retrospot Childrens Apron,332.0,8.0,0.0,0.0,intermittent,A_A
+Retrospot Cigar Box Matches,314.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_A
+Retrospot Heart Hot Water Bottle,449.0,16.5,10.606601717798213,0.41322314049586784,intermittent,A_A
+Retrospot Lamp,82.33333333333333,4.0,5.354126134736337,1.7916666666666665,lumpy,B_A
+Retrospot Padded Seat Cushion,75.8,20.833333333333332,19.853631070075487,0.9081600000000003,lumpy,A_A
+Retrospot Paper Doilies,95.85714285714286,14.5,4.7509397566616824,0.10735518940037368,intermittent,A_A
+Retrospot Party Bag + Sticker,47.642857142857146,11.4,7.613897068612668,0.44607131864749594,intermittent,A_A
+Retrospot Red Washing Up Gloves,189.0,5.0,2.0,0.16000000000000003,intermittent,B_A
+Retrospot Tea Ceramic,241.66666666666666,3.75,1.5,0.16000000000000003,intermittent,B_A
+Retrospot Tea Coffee Sugar,108.33333333333333,13.0,10.519822558706334,0.6548323471400396,lumpy,A_A
+Ribbon Reel Christmas Present,202.5,13.333333333333334,5.773502691896258,0.18750000000000003,intermittent,A_A
+Ribbon Reel Christmas Sock Bauble,343.0,15.0,7.0710678118654755,0.2222222222222222,intermittent,A_A
+Ribbon Reel Flora + Fauna,450.0,15.0,7.0710678118654755,0.2222222222222222,intermittent,A_A
+Ribbon Reel Lace,90.0,14.666666666666666,8.082903768654761,0.30371900826446285,intermittent,A_A
+Ribbon Reel Spots,169.0,20.0,12.24744871391589,0.37499999999999994,intermittent,A_A
+Ribbon Reel Stripes,331.0,16.666666666666668,5.773502691896257,0.11999999999999997,intermittent,A_A
+Ribbons Rustic Charm,72.5,15.857142857142858,14.565124686828367,0.843681519357195,lumpy,A_A
+Ribbons Vintage Christmas,205.5,8.0,3.4641016151377544,0.18749999999999997,intermittent,A_A
+Ring Roses Birthday Card,349.0,12.0,0.0,0.0,intermittent,A_C
+Robot Birthday Card,204.5,12.0,0.0,0.0,intermittent,A_B
+Rocking Horse Green Christmas,384.0,24.0,16.97056274847714,0.4999999999999999,lumpy,A_A
+Romantic Pinks Ribbons,119.0,12.0,0.0,0.0,intermittent,A_A
+Rose Cottage Keepsake Box,32.5,3.3333333333333335,1.1547005383792517,0.12000000000000004,intermittent,C_A
+Rose Du Sud Oven Glove,180.66666666666666,6.25,0.5,0.0064,intermittent,A_A
+Rotating Silver Angels T-Light Hldr,347.0,21.0,21.213203435596427,1.0204081632653064,lumpy,A_A
+Round Cake Tin Vintage Red,302.0,3.0,1.4142135623730951,0.22222222222222227,intermittent,C_A
+Round Container Retrospot,96.16666666666667,10.428571428571429,4.1576092031015,0.15894164008256711,intermittent,A_A
+Round Purple Clock With Sucker,103.33333333333333,10.0,0.0,0.0,intermittent,A_B
+Round Snack Boxes Fruits,36.77777777777778,12.947368421052632,13.306112564492583,1.0561834886641548,lumpy,A_A
+Round Snack Boxes Of4 Woodland,28.416666666666668,12.0,9.0,0.5625,lumpy,A_A
+Round Snack Boxes Skulls,90.14285714285714,5.5,1.4142135623730951,0.06611570247933886,intermittent,A_A
+Round Storage Tin Vintage Leaf,47.0,8.0,3.4641016151377544,0.18749999999999997,intermittent,B_A
+S/16 Vintage Ivory Cutlery,95.5,4.666666666666667,0.5773502691896257,0.015306122448979588,intermittent,B_A
+Salle De Bain Hook,218.0,12.0,0.0,0.0,intermittent,A_B
+Salt And Pepper Toadstools,25.0,15.0,6.0,0.16000000000000003,intermittent,A_A
+Save The Planet Cotton Tote Bag,55.2,6.0,0.0,0.0,intermittent,A_A
+Scandinavian Reds Ribbons,257.0,28.0,18.33030277982336,0.4285714285714285,intermittent,A_A
+Scottie Dog Hot Water Bottle,150.0,3.0,0.0,0.0,intermittent,C_B
+Set/10 Blue Spotty Party Candles,145.0,28.0,9.797958971132712,0.1224489795918367,intermittent,A_A
+Set/10 Pink Polkadot Party Candles,98.0,24.0,0.0,0.0,intermittent,A_A
+Set/10 Red Polkadot Party Candles,196.66666666666666,30.0,12.0,0.16000000000000003,intermittent,A_A
+Set/2 Red Spotty Tea Towels,155.0,8.0,3.4641016151377544,0.18749999999999997,intermittent,A_A
+Set/20 Strawberry Paper Napkins,298.0,12.0,0.0,0.0,intermittent,B_B
+Set/3 Polka Dot Stacking Tins,18.0,3.0,0.0,0.0,intermittent,C_B
+Set/3 Red Gingham Rose Storage Box,154.0,4.0,0.0,0.0,intermittent,C_B
+Set/3 Russian Doll Stacking Tins,40.375,4.666666666666667,1.5811388300841898,0.11479591836734696,intermittent,A_A
+Set/4 Badges Dogs,188.0,7.0,5.196152422706632,0.5510204081632654,lumpy,B_B
+Set/4 Badges Woodland Animal,21.6,13.333333333333334,5.163977794943223,0.15000000000000002,intermittent,A_A
+Set/5 Red Retrospot Lid Glass Bowls,161.0,10.0,3.4641016151377544,0.12,intermittent,A_A
+Set/6 Collage Paper Cups,357.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_C
+Set/6 Collage Paper Plates,168.0,12.0,0.0,0.0,intermittent,A_C
+Set/6 Fruit Salad Paper Cups,116.0,18.0,6.928203230275509,0.1481481481481481,intermittent,A_A
+Set/6 Fruit Salad Paper Plates,125.33333333333333,18.0,6.928203230275509,0.1481481481481481,intermittent,A_A
+Set/6 Red Spotty Paper Cups,83.0,16.8,6.572670690061993,0.15306122448979587,intermittent,A_A
+Set/6 Red Spotty Paper Plates,184.0,12.0,0.0,0.0,intermittent,A_B
+Set/6 Woodland Paper Cups,18.0,12.0,0.0,0.0,intermittent,B_B
+Set/6 Woodland Paper Plates,18.0,12.0,0.0,0.0,intermittent,A_B
+Set3 Book Box Green Gingham Flower,299.0,4.0,0.0,0.0,intermittent,C_B
+Silk Purse Babushka Blue,27.0,6.0,0.0,0.0,intermittent,B_A
+Silk Purse Babushka Pink,98.0,6.0,0.0,0.0,intermittent,B_A
+Silk Purse Babushka Red,151.0,6.0,0.0,0.0,intermittent,B_A
+Silver Hanging T-Light Holder Dome,58.0,6.0,0.0,0.0,intermittent,B_B
+Skull And Crossbones Garland,160.0,12.0,0.0,0.0,intermittent,A_A
+Skull Cake Cases,631.0,24.0,0.0,0.0,intermittent,A_B
+Skull Lunch Box With Cutlery,46.285714285714285,14.25,18.68345333634627,1.7190344281757022,lumpy,A_A
+Skull Paper Napkins,267.0,12.0,0.0,0.0,intermittent,A_B
+Skull Tissues,240.0,24.0,0.0,0.0,intermittent,A_C
+Skulls Party Bag + Sticker,313.0,8.0,0.0,0.0,intermittent,A_A
+Skulls Tape,282.5,16.0,6.928203230275509,0.18749999999999997,intermittent,A_B
+Small Red Babushka Notebook,29.0,12.0,0.0,0.0,intermittent,A_B
+Small Red Retrospot Windmill,17.0,12.0,0.0,0.0,intermittent,A_B
+Snack Loaf Baking Cases,31.5,57.6,64.34904816700866,1.248070987654321,lumpy,A_A
+Snack Tray Red Vintage Doily,8.0,8.0,0.0,0.0,intermittent,B_B
+Snowstorm Photo Frame Fridge Magnet,246.0,18.0,8.48528137423857,0.22222222222222215,intermittent,A_B
+Soft Pink Rose Towel,3.0,6.0,2.8284271247461903,0.22222222222222227,intermittent,B_A
+Space Frog,126.0,10.0,0.0,0.0,intermittent,B_B
+Spaceboy Beaker,14.666666666666666,12.0,0.0,0.0,intermittent,A_A
+Spaceboy Birthday Card,72.14285714285714,12.0,0.0,0.0,intermittent,A_A
+Spaceboy Cake Cases,131.66666666666666,19.5,9.0,0.21301775147928997,intermittent,A_A
+Spaceboy Childrens Bowl,25.75,9.6,3.5777087639996634,0.1388888888888889,intermittent,A_A
+Spaceboy Childrens Cup,32.5,11.2,4.381780460041329,0.15306122448979592,intermittent,A_A
+Spaceboy Cookie Cutter,83.25,9.6,3.286335345030997,0.11718750000000004,intermittent,A_A
+Spaceboy Gift Wrap,197.33333333333334,25.0,0.0,0.0,intermittent,A_A
+Spaceboy Lunch Box,55.77777777777778,18.0,12.96148139681572,0.5185185185185185,lumpy,A_A
+Spaceboy Mini Backpack,21.0,4.0,0.0,0.0,intermittent,B_A
+Spaceboy Napkins,444.0,24.0,0.0,0.0,intermittent,A_A
+Spaceboy Rocket Lolly Makers,25.0,9.0,4.242640687119285,0.22222222222222215,intermittent,B_A
+Spaceboy Tissues,338.0,48.0,0.0,0.0,intermittent,A_B
+Spice Tins Pantry,33.75,4.0,0.0,0.0,intermittent,B_A
+Spotty Bunting,49.25,6.0,3.0,0.25,intermittent,A_A
+Star Wooden Christmas Decoration,27.0,12.0,0.0,0.0,intermittent,A_B
+Star Wreath Decoration With Bell,28.0,144.0,0.0,0.0,intermittent,A_A
+Stars Gift Tape,113.66666666666667,18.0,6.928203230275509,0.1481481481481481,intermittent,A_B
+Storage Tin Home Sweet Home,74.0,6.0,0.0,0.0,intermittent,B_B
+Storage Tin Vintage Doily,43.5,6.0,0.0,0.0,intermittent,A_A
+Storage Tin Vintage Leaf,24.0,6.0,0.0,0.0,intermittent,B_A
+Strawberry Ceramic Trinket Box,224.66666666666666,21.0,11.489125293076057,0.2993197278911565,intermittent,A_A
+Strawberry Charlotte Bag,111.66666666666667,10.25,7.762087348130012,0.5734681737061273,lumpy,A_B
+Strawberry Dream Childs Umbrella,132.5,4.666666666666667,2.3094010767585034,0.24489795918367352,intermittent,B_A
+Strawberry Fairy Cake Teapot,118.0,12.0,5.656854249492381,0.22222222222222227,intermittent,B_A
+Strawberry Lunch Box With Cutlery,55.23076923076923,21.0,21.792729909836375,1.0769230769230769,lumpy,A_A
+Sweetheart Ceramic Trinket Box,179.0,12.0,0.0,0.0,intermittent,A_A
+Sweeties Stickers,219.0,12.0,0.0,0.0,intermittent,B_B
+Tablecloth Red Apples,213.5,3.3333333333333335,2.3094010767585034,0.48000000000000015,intermittent,C_A
+Tea Party Birthday Card,480.0,12.0,0.0,0.0,intermittent,B_C
+Tea Party Wrapping Paper,98.5,25.0,0.0,0.0,intermittent,A_B
+Tea Time Oven Glove,144.5,13.333333333333334,5.773502691896258,0.18750000000000003,intermittent,A_A
+Tea Time Tea In Gift Box,78.0,5.25,4.5,0.7346938775510203,lumpy,B_A
+Tea Towels Apple And Pears,64.5,13.2,7.8230428862431785,0.3512396694214876,intermittent,A_A
+Tea Towels I Love London,164.0,6.0,0.0,0.0,intermittent,B_A
+Teatime Fairy Cake Cases,72.0,24.0,0.0,0.0,intermittent,A_A
+Toadstool Money Box,184.0,16.5,21.0,1.6198347107438016,lumpy,A_A
+Toy Tidy Spaceboy,128.0,7.5,3.5355339059327378,0.2222222222222222,intermittent,B_B
+Toybox Wrap,112.0,25.0,0.0,0.0,intermittent,A_B
+Traditional Knitting Nancy,273.5,12.0,0.0,0.0,intermittent,A_A
+Traditional Modelling Clay,154.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_A
+Tradtional Alphabet Stamp,16.0,8.0,5.656854249492381,0.5000000000000001,lumpy,B_A
+Travel Card Wallet Transport,88.0,36.0,16.97056274847714,0.22222222222222215,intermittent,A_B
+Travel Sewing Kit,53.125,11.333333333333334,3.3166247903554,0.08564013840830449,intermittent,A_A
+Treasure Island Book Box,56.0,8.0,0.0,0.0,intermittent,B_A
+Treasure Tin Gymkhana,55.0,6.0,0.0,0.0,intermittent,B_B
+Tv Dinner Tray Dolly Girl,110.33333333333333,6.0,4.242640687119285,0.4999999999999999,lumpy,B_A
+Urban Black Ribbons,162.33333333333334,12.0,0.0,0.0,intermittent,A_A
+Victorian Sewing Box Large,182.5,8.8,10.616025621672172,1.4553202479338845,lumpy,A_A
+Vintage Doily Deluxe Sewing Kit,37.0,4.5,2.1213203435596424,0.22222222222222215,intermittent,C_A
+Vintage Doily Travel Sewing Kit,13.0,10.0,0.0,0.0,intermittent,B_A
+Vintage Heads And Tails Card Game,217.0,12.0,0.0,0.0,intermittent,A_A
+Vintage Pistachio Cutlery,466.0,2.5,2.1213203435596424,0.7199999999999998,lumpy,C_A
+Vintage Postcard,223.33333333333334,15.0,10.392304845413264,0.48,intermittent,A_A
+Vintage Red Cutlery,585.0,1.0,0.0,0.0,intermittent,C_B
+Vintage Rose Cutlery,96.0,4.4,3.5071355833500366,0.6353305785123966,lumpy,B_A
+Vintage Sky Blue Cutlery,292.5,1.0,0.0,0.0,intermittent,C_A
+Vintage Union Jack Shopping Bag,186.0,5.666666666666667,2.516611478423583,0.19723183391003454,intermittent,B_A
+Wall Tidy Retrospot,191.0,12.5,3.5355339059327378,0.08,intermittent,A_A
+Wash Bag Vintage Rose Paisley,43.0,6.0,0.0,0.0,intermittent,B_B
+Watering Can Blue Elephant,157.0,6.0,0.0,0.0,intermittent,B_B
+White Retrodisc Lampshade,29.2,31.5,12.833549781724463,0.1659863945578231,intermittent,A_A
+White Spot Red Ceramic Drawer Knob,70.83333333333333,15.428571428571429,5.855400437691199,0.1440329218106996,intermittent,A_A
+White Tea Coffee Sugar Jars,335.0,7.0,7.0710678118654755,1.0204081632653064,lumpy,B_A
+White Wood Garden Plant Ladder,77.0,1.5,0.7071067811865476,0.22222222222222227,intermittent,C_B
+Wooden Box Advent Calendar,126.0,7.0,4.242640687119285,0.3673469387755101,intermittent,B_A
+Wooden Owls Light Garland,104.0,26.0,31.11269837220809,1.4319526627218935,lumpy,A_A
+Wooden School Colouring,363.0,12.0,0.0,0.0,intermittent,A_A
+Wooden Sleigh Decorations,20.0,12.0,0.0,0.0,intermittent,A_B
+Woodland Animal Writing,155.0,12.0,0.0,0.0,intermittent,A_A
+Woodland Bunnies Lolly Makers,18.0,12.0,6.0,0.25,intermittent,A_A
+Woodland Charlotte Bag,26.52173913043478,20.833333333333332,22.63446134944921,1.1803826086956526,lumpy,A_A
+Woodland Cotton Tote Bag,50.166666666666664,11.076923076923077,7.28539107233943,0.43258101851851843,intermittent,A_A
+Woodland Height Chart Stickers,56.8,8.181818181818182,3.027149874657078,0.1368888888888889,intermittent,A_A
+Woodland Mini Backpack,19.75,4.0,0.0,0.0,intermittent,B_A
+Woodland Party Bag + Sticker,65.9090909090909,7.583333333333333,1.4433756729740643,0.03622750875498128,intermittent,A_A
+Woodland Small Red Felt Heart,15.0,16.0,6.928203230275509,0.18749999999999997,intermittent,A_A
+Woodland Stickers,98.33333333333333,13.714285714285714,4.535573676110727,0.10937500000000001,intermittent,A_A
+Woodland Storage Box Large,122.6,8.333333333333334,7.840068026915753,0.8851199999999998,lumpy,A_A
+Woodland Storage Box Small,122.6,8.333333333333334,7.840068026915753,0.8851199999999998,lumpy,A_A
+Woodland Tissues,132.75,115.2,177.50267603616572,2.374131944444444,lumpy,A_A
+Woodland Water Transfer Tattoos,30.6,14.0,4.898979485566356,0.1224489795918367,intermittent,A_A
+Woolly Hat Sock Glove Advent String,7.0,12.0,0.0,0.0,intermittent,A_A
+Wrap Alphabet Poster,69.0,25.0,0.0,0.0,intermittent,A_B
+Wrap Bird Garden,1.0,25.0,0.0,0.0,smooth,A_B
+Wrap Blue Reindeer,275.0,25.0,0.0,0.0,intermittent,A_B
+Wrap Circus Parade,112.0,25.0,0.0,0.0,intermittent,A_A
+Wrap Doiley,167.0,25.0,0.0,0.0,intermittent,A_B
+Wrap Green Pears,211.0,25.0,0.0,0.0,intermittent,A_B
+Wrap Monster Fun,41.0,25.0,0.0,0.0,intermittent,A_B
+Wrap Poppies,144.0,25.0,0.0,0.0,intermittent,A_B
+Wrap Red Apples,49.5,25.0,0.0,0.0,intermittent,A_A
+Wrap Red Vintage Doily,11.5,41.666666666666664,28.867513459481287,0.48,intermittent,A_A
+Wrap S Christmas,34.0,25.0,0.0,0.0,intermittent,A_B
+Wrap Suki And Friends,76.0,25.0,0.0,0.0,intermittent,A_B

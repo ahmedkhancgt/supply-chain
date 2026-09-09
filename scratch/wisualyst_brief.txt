@@ -1,0 +1,1120 @@
+
+Wisualyst Intelligence Platform
+POC Developer Brief
+1. Objective
+Build the first working Proof of Concept of the Wisualyst Intelligence Platform, a modular data, analytics and AI platform that connects directly to a company’s operational data, standardizes that data into a common intelligence layer, runs selected analytical and optimization modules, and makes the outputs available both inside Wisualyst and to external reporting platforms.
+The platform should not behave like a collection of dashboards.
+The architecture should support the following progression:
+Source Data → Data Integration → Data Model → Intelligence Modules → Recommendations → Reporting Layer
+The POC scope consists of four modules:
+Module 1: AI Inventory Optimization
+Module 3: AI Demand Forecasting
+Module 4: Intelligent Procurement Optimizer
+Module 8: Retail Assortment & Space Optimizer
+These modules come from the larger Supply Chain Intelligence Platform concept. The underlying product vision is to move beyond descriptive dashboards toward:
+What happened → Why did it happen → What will happen → What should we do next
+
+
+2. What the Platform Is
+Wisualyst should sit between a company’s operational systems and its decision making tools.
+It should be thought of as an intelligence layer rather than another ERP or another BI application.
+A company may already have:
+ERP data
+Sales data
+Inventory data
+Procurement data
+Warehouse data
+Store data
+Supplier data
+Power BI
+Qlik Sense
+Google Sheets
+Wisualyst connects these systems together, understands the underlying operational data and applies forecasting, analytics and optimization models on top of it.
+The user should then receive:
+Current KPIs
+Forecasts
+Exceptions
+Risks
+Recommendations
+Optimization outputs
+Suggested actions
+Supporting evidence
+Confidence levels
+Reporting ready datasets
+The existing prototype already reflects this concept as an onboarding journey leading into a live workspace containing visualization, modules, a marketplace and MCP integrations.
+
+
+3. POC Scope
+Module 1: AI Inventory Optimization
+Business Problem
+Companies frequently experience:
+Overstock
+Stockouts
+Static reorder rules
+Excess working capital
+Incorrect safety stock levels
+Inventory imbalance between branches or warehouses
+The source concept defines this module as recommending safety stock, reorder points, PO quantities, excess stock actions and inter branch transfers.
+Required Inputs
+At minimum:
+SKU ID
+SKU description
+Location
+Warehouse
+Current stock
+Available stock
+Reserved stock where available
+Historical sales or consumption
+Purchase orders
+Supplier lead time
+Minimum order quantity where available
+Existing reorder point where available
+Inventory value or cost
+Transaction date
+POC Outputs
+Current inventory position
+Days of inventory cover
+Suggested safety stock
+Suggested reorder point
+Suggested reorder quantity
+Stockout probability or risk
+Projected stockout date
+Excess inventory identification
+Slow moving inventory
+Inventory value at risk
+Potential inter warehouse transfer recommendations
+Recommended procurement action
+Example Recommendation
+SKU 3471 may stock out within 11 days.
+Reason:
+Demand has increased while supplier lead time has increased.
+Recommendation:
+Increase the upcoming PO quantity or transfer available surplus from another location.
+The prototype already demonstrates this recommendation pattern with a structured explanation containing what happened, why it happened, financial impact, confidence, recommended action, alternative action and evidence.
+
+
+4. Module 3: AI Demand Forecasting
+Business Problem
+Poor forecasting creates incorrect purchasing, inventory and production decisions.
+The source product concept defines this module as forecasting demand by SKU, location and time, including confidence ranges and exception alerts.
+Required Inputs
+SKU ID
+Location
+Historical sales quantity
+Transaction date
+Selling price where available
+Promotions where available
+Stock availability
+Returns where available
+Seasonality indicators where available
+Customer or channel where available
+Forecasting Levels
+The platform should ideally support forecasting at:
+Overall company
+Category
+SKU
+Location
+SKU × Location
+Time granularity should initially support:
+Daily
+Weekly
+Monthly
+POC Outputs
+Forecast demand
+Forecast horizon
+Lower confidence range
+Expected forecast
+Upper confidence range
+Forecast accuracy
+Forecast bias
+WMAPE
+Demand trend
+Seasonality
+Demand spike alert
+Demand decline alert
+Planner exceptions
+Model Architecture
+The POC should allow the forecasting engine to remain model agnostic.
+Possible engines include:
+ARIMA
+Prophet
+XGBoost
+LightGBM
+Ensemble forecasting
+The eventual system should automatically compare model performance and retain the best performing forecasting approach for the appropriate series.
+For the POC, engineering simplicity and measurable accuracy are more important than implementing every algorithm listed above.
+
+
+5. Module 4: Intelligent Procurement Optimizer
+Business Problem
+Procurement decisions often prioritize unit price while ignoring total cost, supplier reliability, capacity and operational risk.
+The original module proposes supplier allocation, sourcing quantities and optimal procurement plans using optimization and supplier scoring.
+Required Inputs
+Supplier ID
+Supplier name
+SKU
+Purchase price
+Historical purchase orders
+Ordered quantity
+Received quantity
+Purchase date
+Expected delivery date
+Actual delivery date
+Lead time
+Supplier capacity where available
+Minimum order quantity
+Quality indicators where available
+Payment terms where available
+Freight or landed cost where available
+POC Outputs
+Supplier score
+Supplier ranking
+Supplier OTIF
+Average lead time
+Lead time variability
+Purchase price variance
+Supplier risk
+Recommended supplier
+Recommended sourcing quantity
+Recommended allocation by supplier
+Procurement savings opportunity
+Suggested PO quantity
+Suggested PO timing
+Optimization Example
+The system may determine:
+Supplier A is cheaper but unreliable.
+Supplier B is more expensive but has better OTIF.
+Supplier C has capacity constraints.
+Rather than simply recommending Supplier A, Wisualyst should optimize the quantity allocation across suppliers considering:
+Cost
+Capacity
+Lead time
+Reliability
+Inventory requirement
+Service level requirement
+This is an important distinction between analytics and decision intelligence.
+
+
+
+
+6. Module 8: Retail Assortment & Space Optimizer
+Business Problem
+Retail businesses often maintain inefficient assortments and allocate physical store space without sufficient demand and profitability intelligence.
+The original concept defines the module as recommending store level assortment and space using demand, margin and operational constraints.
+Required Inputs
+SKU
+Product category
+Store
+Location
+Sales quantity
+Revenue
+Cost
+Gross margin
+Available store space where available
+Shelf or display allocation where available
+Inventory
+Sell through
+Historical assortment
+Product attributes where available
+POC Outputs
+SKU productivity
+Sales per square metre
+Margin per square metre
+Sell through
+GMROI
+Recommended assortment
+Products to retain
+Products to expand
+Products to reduce
+Products to remove
+Recommended store specific assortment
+Space allocation recommendations where sufficient source data exists
+Important POC Behaviour
+The application should distinguish between:
+Recommendation available
+and
+Insufficient data for recommendation
+If physical space data does not exist, the platform should still produce assortment recommendations but should not fabricate space optimization results.
+
+
+7. Data Source Scope
+For this POC, users must be able to choose from three ingestion methods.
+Option A: SFTP
+The customer provides data files through SFTP.
+Supported POC formats should preferably include:
+CSV
+XLSX
+JSON if required
+Configuration Screen
+Host
+Port
+Username
+Authentication method
+Password or SSH key
+Remote folder
+File pattern
+Expected refresh frequency
+Test connection button
+Required Backend Behaviour
+Secure credential storage
+Connection testing
+Scheduled file retrieval
+File validation
+Schema detection
+Incremental ingestion where possible
+File processing history
+Error logging
+Retry capability
+Last successful sync timestamp
+
+
+8. Option B: Direct Database Connection
+The platform connects directly to a customer database.
+The POC should initially create an abstraction that allows database connectors to be added independently.
+Potential databases could include:
+PostgreSQL
+MySQL
+Microsoft SQL Server
+Oracle
+Other enterprise databases later
+The existing prototype already represents databases and warehouses as a separate integration category, including PostgreSQL, Snowflake, BigQuery and Databricks.
+Connection Configuration
+Database type
+Hostname
+Port
+Database name
+Username
+Password or certificate
+SSL configuration
+Optional schema
+Connection Flow
+Enter credentials → Test connection → Discover schemas → Discover tables → Select tables → Preview data → Save connection
+Credentials must never be exposed to the frontend after being stored.
+Connections should be read only by default.
+
+
+9. Option C: Zoho Data Connection
+A native Zoho connection must be available within the POC.
+The existing prototype already includes Zoho within the Business Systems integration category.
+Depending on the customer implementation, this may connect to the relevant Zoho application or API.
+The architecture should therefore avoid tightly coupling the entire application to one Zoho product.
+Suggested Connection Journey
+Connect Zoho
+↓
+OAuth authentication
+↓
+Choose organisation
+↓
+Select available application or dataset
+↓
+Choose modules or tables
+↓
+Preview fields
+↓
+Import metadata
+↓
+Schedule synchronization
+The backend should transform the Zoho response into the same standardized ingestion architecture used for SFTP and database data.
+
+
+10. Critical Architectural Principle
+The AI modules must not directly depend on SFTP, Zoho or a specific database schema.
+This is important.
+Instead:
+SFTP
+      \
+Database → Ingestion Layer → Canonical Data Model → Intelligence Modules
+      /
+Zoho
+Every connector converts source data into the platform’s standardized internal data model.
+The modules then consume standardized data.
+Therefore, adding SAP, Odoo, NetSuite or another connector later should not require rebuilding the Inventory, Demand or Procurement models.
+
+
+
+
+
+11. Data Connection Journey
+The proposed user flow should be:
+Step 1
+User signs in.
+Step 2
+Create organisation or workspace.
+Step 3
+Choose industry and basic organisation information.
+Step 4
+Choose POC modules.
+For this version:
+Inventory Optimization
+Demand Forecasting
+Procurement Optimizer
+Retail Assortment & Space Optimizer
+Step 5
+Select data connection method.
+Connect Data
+SFTP
+Direct Database
+Zoho
+Step 6
+Configure credentials.
+Step 7
+Test connection.
+Step 8
+Discover available data.
+Step 9
+Select required tables or files.
+Step 10
+Preview source data.
+Step 11
+Map source fields to Wisualyst fields.
+Example:
+Customer ERP Field          Wisualyst Field
+
+ItemCode                    SKU_ID
+ItemDescription             SKU_Name
+WarehouseCode               Location_ID
+QtyAvailable                On_Hand_Qty
+OrderDate                   Transaction_Date
+SupplierCode                Supplier_ID
+NetAmount                   Revenue
+The existing prototype already contains an interactive mapping concept where potential fields such as OnHandQty, CurrentStock and AvailableQty can be selected before confirming the mapping.
+
+
+
+
+12. Data Mapping Layer
+The mapping system is one of the most important components of the platform.
+Different customers will use different terminology.
+One ERP may provide:
+ItemCode
+Another:
+Product_ID
+Another:
+SKU
+Wisualyst needs all three to map to:
+sku_id
+Therefore create a Canonical Data Model.
+Suggested core entities:
+Product
+product_id
+sku_id
+product_name
+category
+subcategory
+brand
+unit_cost
+selling_price
+Location
+location_id
+location_name
+location_type
+region
+Inventory
+sku_id
+location_id
+date
+on_hand_quantity
+available_quantity
+reserved_quantity
+inventory_value
+Sales
+transaction_id
+date
+sku_id
+location_id
+quantity
+revenue
+cost
+discount
+Purchase Order
+po_id
+supplier_id
+sku_id
+order_date
+expected_date
+received_date
+ordered_quantity
+received_quantity
+unit_cost
+Supplier
+supplier_id
+supplier_name
+lead_time
+capacity
+payment_terms
+Retail Space
+store_id
+sku_id
+category
+allocated_space
+display_units
+where available.
+
+
+
+13. Automated Field Mapping
+For the POC, provide:
+Exact field matching
+Alias matching
+Suggested field matching
+Manual override
+For example:
+Source Field       Suggested Mapping        Confidence
+
+ItemCode           SKU ID                   98%
+WH                  Location ID              84%
+QtyOH               On Hand Quantity         92%
+NetSales            Revenue                  96%
+Eventually AI can assist with mapping, but the POC should always allow manual confirmation.
+
+
+14. Data Validation and Readiness
+After mapping, Wisualyst should perform data quality checks.
+The prototype already demonstrates a module readiness screen containing:
+Data history
+Product coverage
+Date consistency
+Missing values
+Location mapping
+and an overall readiness score before launch.
+The POC should implement the same principle.
+Checks
+Required fields present
+Missing values
+Duplicate rows
+Date validity
+Invalid quantities
+Negative values
+Unknown SKUs
+Unknown suppliers
+Missing locations
+Historical coverage
+Data freshness
+Output
+Inventory Module            94% Ready
+Demand Forecasting          91% Ready
+Procurement                 87% Ready
+Assortment                  78% Ready
+Each issue should show:
+Severity
+Affected field
+Affected records
+Recommended correction
+Whether it blocks the module
+
+
+
+15. Data Pipeline
+The technical pipeline should conceptually be:
+SOURCE SYSTEMS
+
+SFTP
+Direct DB
+Zoho
+        ↓
+CONNECTOR SERVICE
+        ↓
+RAW INGESTION
+        ↓
+RAW DATA STORAGE
+        ↓
+SCHEMA DETECTION
+        ↓
+FIELD MAPPING
+        ↓
+VALIDATION
+        ↓
+CANONICAL DATA MODEL
+        ↓
+FEATURE / ANALYTICS LAYER
+        ↓
+MODULE ENGINES
+        ↓
+RESULT STORAGE
+        ↓
+WISUALYST API
+        ↓
+WORKSPACE + MCP REPORTING LAYER
+
+
+16. Module Engine Architecture
+Each module should be a separate backend service or clearly isolated service domain.
+                CANONICAL DATA MODEL
+                         ↓
+         ┌───────────────┼───────────────┐
+         ↓               ↓               ↓
+   Inventory AI      Demand AI      Procurement AI
+         ↓               ↓               ↓
+         └───────────────┼───────────────┘
+                         ↓
+               Assortment Optimizer
+                         ↓
+                 Recommendation Layer
+Demand forecasting should feed inventory calculations.
+Inventory requirements should feed procurement.
+Demand and product performance should feed assortment optimization.
+This dependency structure is important.
+The four modules should share intelligence, not operate as four independent screens.
+
+
+17. Recommendation Engine
+A standardized recommendation object should be created.
+Example:
+{
+  "recommendation_id": "REC_001",
+  "module": "inventory",
+  "entity_type": "sku",
+  "entity_id": "SKU_3471",
+  "severity": "critical",
+  "title": "Potential stockout",
+  "summary": "SKU 3471 may stock out within 11 days",
+  "reason": "Demand increased 18% and supplier lead time increased",
+  "financial_impact": 184000,
+  "confidence": 0.91,
+  "recommended_action": "Increase next PO by 1400 units",
+  "alternative_action": "Transfer 620 units from another warehouse",
+  "status": "open"
+}
+All four modules should use the same recommendation structure.
+This enables a single Recommendation Centre.
+
+
+
+
+
+18. Wisualyst Workspace
+Once onboarding is completed, the user enters the workspace.
+The prototype already structures the workspace around:
+Home
+Control Tower
+Active Modules
+Recommendations
+Scenarios
+Marketplace
+Integrations
+Data
+Admin
+For the POC, simplify this to:
+Home
+High level business health.
+Control Tower
+Cross module KPIs and exceptions.
+Inventory
+Inventory analysis and recommendations.
+Demand
+Forecasts and demand exceptions.
+Procurement
+Supplier and procurement intelligence.
+Assortment
+SKU and store assortment intelligence.
+Recommendations
+Unified recommendations.
+Data
+Sources, synchronization, mapping and data quality.
+Integrations
+MCP and external system management.
+Admin
+Users, workspace and configuration.
+
+
+19. Control Tower
+The Control Tower should provide an executive level view across all four POC modules.
+Suggested sections:
+Inventory
+Inventory value
+Excess inventory
+Stockout exposure
+Inventory turns
+Days of cover
+Demand
+Forecast accuracy
+Forecast bias
+Demand change
+High risk forecasts
+Forecast exceptions
+Procurement
+Spend
+Supplier OTIF
+Lead time
+Supplier risk
+Potential savings
+Assortment
+SKU productivity
+GMROI
+Sell through
+Low productivity SKUs
+Assortment opportunities
+Critical Exceptions
+The most important risks across all modules should appear in a consolidated list.
+
+
+
+20. MCP Integration Layer
+A second integration direction is required.
+The first integration direction brings data into Wisualyst.
+SFTP / DB / Zoho
+        ↓
+     Wisualyst
+The second integration direction lets Wisualyst expose data and intelligence to other applications.
+Wisualyst
+    ↓
+MCP Integration Layer
+    ↓
+Power BI
+Qlik Sense
+Google Sheets
+Other MCP Compatible Systems
+This distinction needs to remain explicit in the architecture.
+The current prototype already contains a Model Context Protocol integration concept and supports connecting custom MCP endpoints using server URL and authentication, with permissioned tools and logged actions.
+
+
+21. Important MCP Implementation Detail
+Power BI, Qlik Sense and Google Sheets should be treated as target integrations, rather than assuming each product itself exposes the exact MCP interface Wisualyst needs.
+The architecture should therefore create:
+Wisualyst MCP Layer
+plus
+Application Adapters
+For example:
+                    Wisualyst Intelligence API
+                              ↓
+                         MCP Layer
+                              ↓
+          ┌───────────────────┼───────────────────┐
+          ↓                   ↓                   ↓
+   Power BI Adapter     Qlik Adapter       Sheets Adapter
+          ↓                   ↓                   ↓
+       Power BI           Qlik Sense        Google Sheets
+This allows each adapter to use the authentication and API method required by the corresponding application while exposing a consistent MCP tool interface from the Wisualyst side.
+
+
+22. MCP Tool Design
+The MCP server should expose useful reporting tools such as:
+get_inventory_kpis
+get_inventory_recommendations
+
+get_demand_forecast
+get_forecast_accuracy
+get_demand_exceptions
+
+get_procurement_kpis
+get_supplier_scores
+get_procurement_recommendations
+
+get_assortment_performance
+get_assortment_recommendations
+
+get_control_tower_summary
+
+get_dataset_schema
+query_dataset
+
+list_available_metrics
+list_available_dimensions
+For example, Power BI could request:
+get_demand_forecast
+sku = all
+location = Dubai
+period = next_12_weeks
+Wisualyst returns standardized structured data.
+Power BI handles visualization.
+
+
+23. Reporting Architecture
+This is another critical principle:
+Wisualyst performs intelligence.
+Power BI, Qlik Sense or Google Sheets can perform reporting and visualization.
+Therefore the reporting flow is:
+Raw Operational Data
+        ↓
+Wisualyst Intelligence Engine
+        ↓
+Processed Metrics
+Forecasts
+Recommendations
+Optimization Results
+        ↓
+MCP / API Layer
+        ↓
+Power BI / Qlik / Sheets
+        ↓
+Reports and Dashboards
+This prevents forecasting or optimization logic from being duplicated inside Power BI or Qlik.
+
+
+24. Power BI Integration Example
+Power BI should be able to consume curated outputs such as:
+inventory_summary
+inventory_recommendations
+demand_forecast
+forecast_accuracy
+supplier_scorecard
+procurement_recommendations
+assortment_performance
+assortment_recommendations
+control_tower_summary
+A report developer should therefore not have to reconstruct the Wisualyst business logic using DAX.
+The intelligence has already been calculated.
+Power BI becomes the presentation layer.
+
+
+25. Qlik Sense Integration
+The same principle applies to Qlik Sense.
+Wisualyst exposes standardized analytical datasets.
+Qlik consumes those results.
+The system should therefore have one semantic output contract rather than separately rebuilding business logic for each BI tool.
+
+
+26. Google Sheets Integration
+Google Sheets should allow simplified consumption of:
+Forecasts
+Recommendations
+Supplier scorecards
+Inventory exceptions
+Assortment decisions
+Users may therefore retrieve or refresh structured tables without downloading and manually copying reports.
+
+
+27. Internal API Layer
+Even though MCP is required, the underlying platform should have a proper API architecture.
+Suggested resource structure:
+/api/v1/workspaces
+
+/api/v1/connections
+
+/api/v1/datasets
+
+/api/v1/mappings
+
+/api/v1/data-quality
+
+/api/v1/modules
+
+/api/v1/inventory
+
+/api/v1/demand
+
+/api/v1/procurement
+
+/api/v1/assortment
+
+/api/v1/recommendations
+
+/api/v1/control-tower
+
+/api/v1/integrations
+
+/api/v1/mcp
+MCP tools can call the same service layer used by these APIs.
+Do not implement separate business logic inside MCP.
+
+
+28. Synchronization
+Every source connection should store:
+Connection status
+Last sync
+Last successful sync
+Next scheduled sync
+Rows processed
+Rows rejected
+Source schema version
+Sync duration
+Error state
+Sync statuses
+Connected
+Syncing
+Healthy
+Warning
+Failed
+Authentication required
+
+
+29. Data Lineage
+For every major result, Wisualyst should eventually be able to show:
+Source system
+Source table
+Data timestamp
+Model version
+Calculation timestamp
+The user needs to understand where a recommendation came from.
+Example:
+Recommendation:
+Increase PO for SKU 3471
+
+Evidence:
+Sales History → Zoho
+Inventory → SQL Database
+Purchase Orders → SQL Database
+Forecast Model → Demand Intelligence v1
+Calculated → 24 Aug 2026 18:31
+
+
+30. Security Requirements
+For the POC:
+Encryption in transit
+Encryption at rest
+Secure secret storage
+No credentials in frontend code
+Workspace level data isolation
+Read only data source access wherever possible
+Role based permissions
+Audit log for integration activity
+MCP tool permissions
+The prototype’s MCP design already follows the principle that integrations are read only by default, while action tools require approval.
+
+
+
+
+31. Recommended Core Backend Components
+A clean architecture would contain:
+Authentication Service
+Users and organisations.
+Connector Service
+SFTP
+Database
+Zoho
+Ingestion Service
+Pulls and receives data.
+Mapping Service
+Transforms source schemas to Wisualyst’s canonical schema.
+Validation Service
+Data quality and readiness.
+Data Layer
+Raw data
+Standardized data
+Analytics outputs
+Intelligence Services
+Inventory engine
+Demand forecasting engine
+Procurement optimizer
+Assortment optimizer
+Recommendation Service
+Standardizes recommendations from every module.
+API Service
+Provides application access.
+MCP Service
+Provides tool based access to Wisualyst intelligence.
+Integration Adapters
+Power BI
+Qlik Sense
+Google Sheets
+Scheduler / Worker Service
+Data synchronization
+Forecast runs
+Optimization jobs
+Background calculations
+
+
+
+
+
+32. Suggested Logical Architecture
+┌─────────────────────────────────────────────────────────────┐
+│                     CUSTOMER DATA                          │
+│                                                           │
+│          SFTP          DIRECT DB          ZOHO             │
+└────────────┬──────────────┬────────────────┬────────────────┘
+             │              │                │
+             └──────────────┼────────────────┘
+                            ↓
+                  CONNECTOR SERVICE
+                            ↓
+                    INGESTION LAYER
+                            ↓
+                     RAW DATA STORE
+                            ↓
+             SCHEMA + FIELD MAPPING LAYER
+                            ↓
+                  DATA QUALITY ENGINE
+                            ↓
+                   CANONICAL DATA MODEL
+                            ↓
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ↓                   ↓                   ↓
+ INVENTORY AI          DEMAND AI         PROCUREMENT AI
+        │                   │                   │
+        └───────────────────┼───────────────────┘
+                            ↓
+                   ASSORTMENT AI
+                            ↓
+                  RECOMMENDATION ENGINE
+                            ↓
+                     SEMANTIC LAYER
+                            ↓
+                WISUALYST BACKEND API
+                   ↙               ↘
+                  ↓                 ↓
+         WISUALYST WORKSPACE     MCP SERVER
+                                     ↓
+                        ┌────────────┼────────────┐
+                        ↓            ↓            ↓
+                    POWER BI     QLIK SENSE   GOOGLE SHEETS
+
+
+
+
+
+33. Frontend Journey
+Screen 1
+Login / Sign Up
+Screen 2
+Create Workspace
+Company Name
+Industry
+Region
+Screen 3
+POC Module Selection
+Inventory Optimization
+Demand Forecasting
+Procurement Optimizer
+Retail Assortment Optimizer
+Screen 4
+Connect Data
+Three large options:
+SFTP
+Direct Database
+Zoho
+Screen 5
+Configure Connection
+Credentials and authentication.
+Screen 6
+Discover Data
+Tables
+Files
+Objects
+Screen 7
+Select Data
+Allow required datasets to be selected.
+Screen 8
+Map Fields
+Source field → Wisualyst field.
+Screen 9
+Validate Data
+Quality checks and readiness.
+Screen 10
+Launch Workspace
+The current prototype similarly presents a final workspace readiness state showing connected data sources, modules, data quality and last synchronization before the user launches the workspace.
+
+
+
+34. After Launch
+The user lands on:
+Control Tower
+From here they can navigate to:
+Inventory
+Demand
+Procurement
+Assortment
+Recommendations
+Data
+Integrations
+Admin
+The module marketplace concept from the prototype should remain architecturally possible because the eventual product is intended to support additional intelligence modules without rebuilding the workspace. The current prototype already calculates module readiness from connected data and permits modules to be added to an existing workspace.
+For the POC, however, only the four approved modules need to function.
+
+
+35. POC Boundaries
+Must Work
+User authentication
+Workspace creation
+SFTP connection
+Direct DB connection
+Zoho connection
+Data discovery
+Schema detection
+Field mapping
+Data validation
+Canonical data model
+Module 1 Inventory Optimization
+Module 3 Demand Forecasting
+Module 4 Procurement Optimization
+Module 8 Assortment Optimization
+Unified recommendations
+Control Tower
+Module screens
+Data synchronization monitoring
+MCP server architecture
+Power BI adapter
+Qlik Sense adapter
+Google Sheets adapter
+Reporting ready datasets
+Does Not Need Full Production Depth Yet
+Automatic onboarding for every ERP
+All twelve original intelligence modules
+Advanced scenario simulation
+Autonomous write back into ERP systems
+Automatic purchase order creation
+Enterprise marketplace billing
+Highly advanced permission models
+Every forecasting algorithm
+Full no code report builder
+Production grade optimization for every industry constraint
+The POC should prove the architecture and end to end workflow.
+
+
+
+36. POC Success Criteria
+The POC is successful when we can demonstrate this complete flow:
+1. Connect a real customer dataset
+through SFTP, direct DB or Zoho.
+↓
+2. Wisualyst discovers the data
+↓
+3. User maps customer fields
+↓
+4. Wisualyst validates the dataset
+↓
+5. Canonical datasets are generated
+↓
+6. Four intelligence modules run
+↓
+7. Forecasts and optimization outputs are produced
+↓
+8. Recommendations appear inside Wisualyst
+↓
+9. Control Tower summarizes the findings
+↓
+10. Power BI, Qlik Sense or Google Sheets can consume the resulting analytical datasets
+This is the central POC.
+
+
+37. Product Philosophy for Development
+The engineering team should continuously preserve five principles.
+Principle 1: Connect Once
+Customer data should be connected once and reused across multiple modules.
+Principle 2: Map Once
+The canonical data layer prevents every module from rebuilding source mappings.
+Principle 3: Intelligence Before Visualization
+Forecasts, optimization and recommendations belong inside Wisualyst.
+Reporting tools visualize the outputs.
+Principle 4: Modular Architecture
+Every future Wisualyst module should be able to plug into the same platform.
+Principle 5: Explain Every Recommendation
+The platform should not only output:
+“Order 1,400 units.”
+It should explain:
+Why
+Based on which data
+Expected impact
+Confidence
+Alternative action
+
+
+38. The Simplest Way to Explain the Product to the Development Team
+Wisualyst is the intelligence layer between enterprise data and enterprise reporting.
+Companies connect data to Wisualyst through:
+SFTP + Direct Database + Zoho
+Wisualyst standardizes that data and runs:
+Inventory AI + Demand AI + Procurement AI + Assortment AI
+Those modules produce:
+KPIs + Forecasts + Risks + Recommendations + Optimized Decisions
+The results appear inside:
+Wisualyst Control Tower + Module Workspaces
+and are exposed through:
+MCP + APIs
+to:
+Power BI + Qlik Sense + Google Sheets
+for report creation and business consumption.
+Or, in one line:
+Connect → Map → Validate → Understand → Predict → Optimize → Recommend → Report
+That should be the architectural backbone of the POC.

@@ -1,0 +1,13 @@
+﻿{
+  "mcpServers": {
+    "wisualyst-supply-chain": {
+      "command": "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "args": ["-m", "mcp.server"],
+      "cwd": "D:\\supplychain",
+      "env": {
+        "DATABASE_URL": "sqlite:///./supply_chain.db",
+        "PYTHONPATH": "D:\\supplychain"
+      }
+    }
+  }
+}

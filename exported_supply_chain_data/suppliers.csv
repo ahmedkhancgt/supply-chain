@@ -1,0 +1,9 @@
+id,code,name,contact_email,rating,lead_time_avg_days
+1,SUP-MED-01,Astra Pharma Global,orders@astrapharma.com,4.85,4
+2,SUP-MED-02,Pfizer Health Supplies,supply@pfizerhealth.com,4.90,5
+3,SUP-ELEC-01,TechTronix Asia Ltd,sales@techtronix.io,4.65,8
+4,SUP-ELEC-02,Samsung Electro Components,b2b@samsungcomponents.com,4.78,7
+5,SUP-FMCG-01,Unilever FMCG Supply,distribution@unilever.com,4.92,3
+6,SUP-FMCG-02,Nestlé Logistics EMEA,orders@nestlelogistics.com,4.88,3
+7,SUP-APP-01,Nike Supply Chain Co,orders@nikesupply.com,4.70,6
+8,SUP-IND-01,Bosch Industrial Spares,support@boschspares.com,4.82,10

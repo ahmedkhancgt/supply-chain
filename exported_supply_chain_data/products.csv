@@ -1,0 +1,21 @@
+id,sku,name,category,unit,unit_cost,selling_price,lead_time_days,safety_stock_min,reorder_point
+5,SKU-PHA-505,Digital Infrared Thermometer,Pharmaceuticals & Healthcare,unit,14.50,39.99,8,30,75
+4,SKU-PHA-504,Vitamin C 1000mg Effervescent,Pharmaceuticals & Healthcare,tube,2.90,7.50,5,120,300
+3,SKU-PHA-503,Ibuprofen 400mg Anti-inflammatory,Pharmaceuticals & Healthcare,pack,3.80,9.99,4,80,200
+2,SKU-PHA-502,Amoxicillin 250mg Antibiotic,Pharmaceuticals & Healthcare,box,8.20,24.50,7,50,120
+1,SKU-PHA-501,Paracetamol 500mg Tablets (100s),Pharmaceuticals & Healthcare,pack,4.50,12.00,5,100,250
+10,SKU-ELEC-605,Mechanical Gaming Keyboard RGB,Consumer Electronics,unit,35.00,89.99,8,15,40
+9,SKU-ELEC-604,Ultra-Wide 27-inch 4K Monitor,Consumer Electronics,unit,180.00,349.99,12,10,25
+8,SKU-ELEC-603,Bluetooth Portable Speaker 20W,Consumer Electronics,unit,22.00,59.99,8,25,60
+7,SKU-ELEC-602,Smart USB-C Fast Charger 65W,Consumer Electronics,unit,12.50,34.99,7,40,100
+6,SKU-ELEC-601,Wireless Active Noise-Canceling Headphones,Consumer Electronics,unit,45.00,129.99,9,20,50
+15,SKU-FMCG-705,Dark Chocolate 85% Cocoa 100g,FMCG & Groceries,bar,1.20,3.49,4,200,500
+14,SKU-FMCG-704,Gluten-Free Oats 1kg,FMCG & Groceries,bag,2.10,5.25,4,100,250
+13,SKU-FMCG-703,Extra Virgin Olive Oil 750ml,FMCG & Groceries,bottle,5.20,13.50,6,60,150
+12,SKU-FMCG-702,Premium Arabica Coffee Beans 500g,FMCG & Groceries,bag,6.50,16.99,5,80,200
+11,SKU-FMCG-701,Organic Almond Milk 1L,FMCG & Groceries,carton,1.80,4.50,3,150,400
+18,SKU-APP-803,Waterproof Outdoor Jacket XL,Apparel & Footwear,unit,42.00,125.00,10,15,40
+17,SKU-APP-802,Breathable Athletic Socks (3-Pack),Apparel & Footwear,pack,3.50,12.99,5,100,250
+16,SKU-APP-801,Performance Running Shoes Men Size 10,Apparel & Footwear,pair,38.00,110.00,8,25,60
+20,SKU-IND-902,Industrial Hydraulic Pressure Valve,Industrial Components,unit,85.00,210.00,14,8,20
+19,SKU-IND-901,High-Precision Ball Bearing Set,Industrial Components,set,18.50,45.00,10,40,90
