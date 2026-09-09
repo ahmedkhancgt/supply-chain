@@ -1,0 +1,101 @@
+id,sku,product_name,warehouse_code,warehouse_name,current_stock,available_stock,safety_stock
+2,SKU-PHA-501,Paracetamol 500mg Tablets (100s),WH-LON-01,London Logistics Hub,1200,1193,30
+3,SKU-PHA-501,Paracetamol 500mg Tablets (100s),WH-DXB-01,Dubai Gateway Logistics,140,135,30
+4,SKU-PHA-501,Paracetamol 500mg Tablets (100s),WH-SIN-01,Singapore Distribution Center,140,122,15
+5,SKU-PHA-501,Paracetamol 500mg Tablets (100s),WH-NYC-01,New York Fulfillment Center,18,12,50
+6,SKU-PHA-501,Paracetamol 500mg Tablets (100s),WH-FRA-01,Frankfurt Air Hub,520,510,30
+7,SKU-PHA-502,Amoxicillin 250mg Antibiotic,WH-LON-01,London Logistics Hub,12,10,100
+8,SKU-PHA-502,Amoxicillin 250mg Antibiotic,WH-DXB-01,Dubai Gateway Logistics,18,8,30
+9,SKU-PHA-502,Amoxicillin 250mg Antibiotic,WH-SIN-01,Singapore Distribution Center,18,16,50
+10,SKU-PHA-502,Amoxicillin 250mg Antibiotic,WH-NYC-01,New York Fulfillment Center,18,8,100
+11,SKU-PHA-502,Amoxicillin 250mg Antibiotic,WH-FRA-01,Frankfurt Air Hub,45,27,100
+12,SKU-PHA-503,Ibuprofen 400mg Anti-inflammatory,WH-LON-01,London Logistics Hub,140,130,100
+13,SKU-PHA-503,Ibuprofen 400mg Anti-inflammatory,WH-DXB-01,Dubai Gateway Logistics,140,126,15
+14,SKU-PHA-503,Ibuprofen 400mg Anti-inflammatory,WH-SIN-01,Singapore Distribution Center,85,74,100
+15,SKU-PHA-503,Ibuprofen 400mg Anti-inflammatory,WH-NYC-01,New York Fulfillment Center,140,136,50
+16,SKU-PHA-503,Ibuprofen 400mg Anti-inflammatory,WH-FRA-01,Frankfurt Air Hub,1200,1193,50
+17,SKU-PHA-504,Vitamin C 1000mg Effervescent,WH-LON-01,London Logistics Hub,85,82,30
+18,SKU-PHA-504,Vitamin C 1000mg Effervescent,WH-DXB-01,Dubai Gateway Logistics,280,271,50
+19,SKU-PHA-504,Vitamin C 1000mg Effervescent,WH-SIN-01,Singapore Distribution Center,280,275,100
+20,SKU-PHA-504,Vitamin C 1000mg Effervescent,WH-NYC-01,New York Fulfillment Center,520,517,30
+21,SKU-PHA-504,Vitamin C 1000mg Effervescent,WH-FRA-01,Frankfurt Air Hub,280,265,30
+22,SKU-PHA-505,Digital Infrared Thermometer,WH-LON-01,London Logistics Hub,12,7,100
+23,SKU-PHA-505,Digital Infrared Thermometer,WH-DXB-01,Dubai Gateway Logistics,1200,1185,50
+24,SKU-PHA-505,Digital Infrared Thermometer,WH-SIN-01,Singapore Distribution Center,1200,1192,30
+25,SKU-PHA-505,Digital Infrared Thermometer,WH-NYC-01,New York Fulfillment Center,140,122,30
+26,SKU-PHA-505,Digital Infrared Thermometer,WH-FRA-01,Frankfurt Air Hub,140,134,30
+27,SKU-ELEC-601,Wireless Active Noise-Canceling Headphones,WH-LON-01,London Logistics Hub,45,27,30
+28,SKU-ELEC-601,Wireless Active Noise-Canceling Headphones,WH-DXB-01,Dubai Gateway Logistics,280,263,30
+29,SKU-ELEC-601,Wireless Active Noise-Canceling Headphones,WH-SIN-01,Singapore Distribution Center,1200,1194,15
+30,SKU-ELEC-601,Wireless Active Noise-Canceling Headphones,WH-NYC-01,New York Fulfillment Center,140,126,50
+31,SKU-ELEC-601,Wireless Active Noise-Canceling Headphones,WH-FRA-01,Frankfurt Air Hub,18,5,15
+32,SKU-ELEC-602,Smart USB-C Fast Charger 65W,WH-LON-01,London Logistics Hub,18,0,15
+33,SKU-ELEC-602,Smart USB-C Fast Charger 65W,WH-DXB-01,Dubai Gateway Logistics,18,4,30
+34,SKU-ELEC-602,Smart USB-C Fast Charger 65W,WH-SIN-01,Singapore Distribution Center,12,1,30
+35,SKU-ELEC-602,Smart USB-C Fast Charger 65W,WH-NYC-01,New York Fulfillment Center,1200,1188,30
+36,SKU-ELEC-602,Smart USB-C Fast Charger 65W,WH-FRA-01,Frankfurt Air Hub,45,25,30
+37,SKU-ELEC-603,Bluetooth Portable Speaker 20W,WH-LON-01,London Logistics Hub,140,121,30
+38,SKU-ELEC-603,Bluetooth Portable Speaker 20W,WH-DXB-01,Dubai Gateway Logistics,85,69,15
+39,SKU-ELEC-603,Bluetooth Portable Speaker 20W,WH-SIN-01,Singapore Distribution Center,280,276,50
+40,SKU-ELEC-603,Bluetooth Portable Speaker 20W,WH-NYC-01,New York Fulfillment Center,45,40,100
+41,SKU-ELEC-603,Bluetooth Portable Speaker 20W,WH-FRA-01,Frankfurt Air Hub,520,512,15
+42,SKU-ELEC-604,Ultra-Wide 27-inch 4K Monitor,WH-LON-01,London Logistics Hub,520,508,100
+43,SKU-ELEC-604,Ultra-Wide 27-inch 4K Monitor,WH-DXB-01,Dubai Gateway Logistics,1200,1194,100
+44,SKU-ELEC-604,Ultra-Wide 27-inch 4K Monitor,WH-SIN-01,Singapore Distribution Center,85,69,30
+45,SKU-ELEC-604,Ultra-Wide 27-inch 4K Monitor,WH-NYC-01,New York Fulfillment Center,45,32,30
+46,SKU-ELEC-604,Ultra-Wide 27-inch 4K Monitor,WH-FRA-01,Frankfurt Air Hub,140,134,50
+47,SKU-ELEC-605,Mechanical Gaming Keyboard RGB,WH-LON-01,London Logistics Hub,12,8,30
+48,SKU-ELEC-605,Mechanical Gaming Keyboard RGB,WH-DXB-01,Dubai Gateway Logistics,45,34,100
+49,SKU-ELEC-605,Mechanical Gaming Keyboard RGB,WH-SIN-01,Singapore Distribution Center,45,33,15
+50,SKU-ELEC-605,Mechanical Gaming Keyboard RGB,WH-NYC-01,New York Fulfillment Center,85,83,100
+51,SKU-ELEC-605,Mechanical Gaming Keyboard RGB,WH-FRA-01,Frankfurt Air Hub,85,68,30
+52,SKU-FMCG-701,Organic Almond Milk 1L,WH-LON-01,London Logistics Hub,1200,1191,50
+53,SKU-FMCG-701,Organic Almond Milk 1L,WH-DXB-01,Dubai Gateway Logistics,1200,1189,15
+54,SKU-FMCG-701,Organic Almond Milk 1L,WH-SIN-01,Singapore Distribution Center,18,14,100
+55,SKU-FMCG-701,Organic Almond Milk 1L,WH-NYC-01,New York Fulfillment Center,140,120,50
+56,SKU-FMCG-701,Organic Almond Milk 1L,WH-FRA-01,Frankfurt Air Hub,520,505,50
+57,SKU-FMCG-702,Premium Arabica Coffee Beans 500g,WH-LON-01,London Logistics Hub,520,506,30
+58,SKU-FMCG-702,Premium Arabica Coffee Beans 500g,WH-DXB-01,Dubai Gateway Logistics,18,0,50
+59,SKU-FMCG-702,Premium Arabica Coffee Beans 500g,WH-SIN-01,Singapore Distribution Center,140,129,50
+60,SKU-FMCG-702,Premium Arabica Coffee Beans 500g,WH-NYC-01,New York Fulfillment Center,18,16,30
+61,SKU-FMCG-702,Premium Arabica Coffee Beans 500g,WH-FRA-01,Frankfurt Air Hub,140,126,100
+62,SKU-FMCG-703,Extra Virgin Olive Oil 750ml,WH-LON-01,London Logistics Hub,12,4,100
+63,SKU-FMCG-703,Extra Virgin Olive Oil 750ml,WH-DXB-01,Dubai Gateway Logistics,18,7,100
+64,SKU-FMCG-703,Extra Virgin Olive Oil 750ml,WH-SIN-01,Singapore Distribution Center,520,513,100
+65,SKU-FMCG-703,Extra Virgin Olive Oil 750ml,WH-NYC-01,New York Fulfillment Center,140,138,100
+66,SKU-FMCG-703,Extra Virgin Olive Oil 750ml,WH-FRA-01,Frankfurt Air Hub,520,512,100
+67,SKU-FMCG-704,Gluten-Free Oats 1kg,WH-LON-01,London Logistics Hub,12,8,50
+68,SKU-FMCG-704,Gluten-Free Oats 1kg,WH-DXB-01,Dubai Gateway Logistics,520,515,30
+69,SKU-FMCG-704,Gluten-Free Oats 1kg,WH-SIN-01,Singapore Distribution Center,18,8,50
+70,SKU-FMCG-704,Gluten-Free Oats 1kg,WH-NYC-01,New York Fulfillment Center,45,32,15
+71,SKU-FMCG-704,Gluten-Free Oats 1kg,WH-FRA-01,Frankfurt Air Hub,18,9,15
+72,SKU-FMCG-705,Dark Chocolate 85% Cocoa 100g,WH-LON-01,London Logistics Hub,1200,1190,100
+73,SKU-FMCG-705,Dark Chocolate 85% Cocoa 100g,WH-DXB-01,Dubai Gateway Logistics,280,278,15
+74,SKU-FMCG-705,Dark Chocolate 85% Cocoa 100g,WH-SIN-01,Singapore Distribution Center,18,11,50
+75,SKU-FMCG-705,Dark Chocolate 85% Cocoa 100g,WH-NYC-01,New York Fulfillment Center,520,501,50
+76,SKU-FMCG-705,Dark Chocolate 85% Cocoa 100g,WH-FRA-01,Frankfurt Air Hub,45,35,50
+77,SKU-APP-801,Performance Running Shoes Men Size 10,WH-LON-01,London Logistics Hub,1200,1195,30
+78,SKU-APP-801,Performance Running Shoes Men Size 10,WH-DXB-01,Dubai Gateway Logistics,140,120,30
+79,SKU-APP-801,Performance Running Shoes Men Size 10,WH-SIN-01,Singapore Distribution Center,85,70,15
+80,SKU-APP-801,Performance Running Shoes Men Size 10,WH-NYC-01,New York Fulfillment Center,18,3,30
+81,SKU-APP-801,Performance Running Shoes Men Size 10,WH-FRA-01,Frankfurt Air Hub,12,0,15
+82,SKU-APP-802,Breathable Athletic Socks (3-Pack),WH-LON-01,London Logistics Hub,280,260,30
+83,SKU-APP-802,Breathable Athletic Socks (3-Pack),WH-DXB-01,Dubai Gateway Logistics,140,124,100
+84,SKU-APP-802,Breathable Athletic Socks (3-Pack),WH-SIN-01,Singapore Distribution Center,520,517,100
+85,SKU-APP-802,Breathable Athletic Socks (3-Pack),WH-NYC-01,New York Fulfillment Center,140,133,30
+86,SKU-APP-802,Breathable Athletic Socks (3-Pack),WH-FRA-01,Frankfurt Air Hub,85,78,100
+87,SKU-APP-803,Waterproof Outdoor Jacket XL,WH-LON-01,London Logistics Hub,140,132,50
+88,SKU-APP-803,Waterproof Outdoor Jacket XL,WH-DXB-01,Dubai Gateway Logistics,140,122,50
+89,SKU-APP-803,Waterproof Outdoor Jacket XL,WH-SIN-01,Singapore Distribution Center,85,81,50
+90,SKU-APP-803,Waterproof Outdoor Jacket XL,WH-NYC-01,New York Fulfillment Center,140,126,15
+91,SKU-APP-803,Waterproof Outdoor Jacket XL,WH-FRA-01,Frankfurt Air Hub,1200,1184,50
+92,SKU-IND-901,High-Precision Ball Bearing Set,WH-LON-01,London Logistics Hub,18,1,100
+93,SKU-IND-901,High-Precision Ball Bearing Set,WH-DXB-01,Dubai Gateway Logistics,1200,1188,30
+94,SKU-IND-901,High-Precision Ball Bearing Set,WH-SIN-01,Singapore Distribution Center,140,130,30
+95,SKU-IND-901,High-Precision Ball Bearing Set,WH-NYC-01,New York Fulfillment Center,12,8,50
+96,SKU-IND-901,High-Precision Ball Bearing Set,WH-FRA-01,Frankfurt Air Hub,1200,1198,50
+97,SKU-IND-902,Industrial Hydraulic Pressure Valve,WH-LON-01,London Logistics Hub,520,512,30
+98,SKU-IND-902,Industrial Hydraulic Pressure Valve,WH-DXB-01,Dubai Gateway Logistics,18,16,50
+99,SKU-IND-902,Industrial Hydraulic Pressure Valve,WH-SIN-01,Singapore Distribution Center,520,512,30
+100,SKU-IND-902,Industrial Hydraulic Pressure Valve,WH-NYC-01,New York Fulfillment Center,280,266,30
+101,SKU-IND-902,Industrial Hydraulic Pressure Valve,WH-FRA-01,Frankfurt Air Hub,520,511,50
